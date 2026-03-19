@@ -261,9 +261,20 @@ map.on('load',()=>{
     'circle-stroke-width':1.5,'circle-stroke-color':'#0e0f11','circle-opacity':.85
   }});
 
+  map.addSource('trace-connector', {type:'geojson', data:fc()});
+
   // Tracé réseau — ombre + ligne principale
-  map.addLayer({id:'trace-shadow',type:'line',source:'trace',paint:{'line-color':'#003d28','line-width':5,'line-opacity':.4}});
-  map.addLayer({id:'trace-line',type:'line',source:'trace',paint:{'line-color':'#00c98a','line-width':2.5,'line-opacity':.95}});
+  map.addLayer({id:'trace-shadow',type:'line',source:'trace',
+    filter:['!=',['get','is_connector'],true],
+    paint:{'line-color':'#003d28','line-width':5,'line-opacity':.4}});
+  map.addLayer({id:'trace-line',type:'line',source:'trace',
+    filter:['!=',['get','is_connector'],true],
+    paint:{'line-color':'#00c98a','line-width':2.5,'line-opacity':.95}});
+
+  // Segments de raccordement (nœud OSM → point réel) en tirets fins
+  map.addLayer({id:'trace-conn',type:'line',source:'trace',
+    filter:['==',['get','is_connector'],true],
+    paint:{'line-color':'#00c98a','line-width':1.5,'line-opacity':.7,'line-dasharray':[3,2]}});
 
   // Popups
   map.on('click','conso-circle',e=>{
