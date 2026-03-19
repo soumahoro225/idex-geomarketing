@@ -16,122 +16,107 @@
   --amber:#f5a623;--abg:rgba(245,166,35,.08);
   --blue:#4d9fff;--bbg:rgba(77,159,255,.08);
   --coral:#ff6b52;--cbg:rgba(255,107,82,.08);
-  --red:#ff4444;
   --sans:"DM Sans",sans-serif;--serif:"Instrument Serif",serif;--mono:"DM Mono",monospace;
-  --r:10px;--rs:7px;
-  --panel:300px;
+  --r:10px;--rs:7px;--panel:300px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
-
-/* ── Layout ── */
 #shell{display:flex;height:100vh}
 #sidebar{width:var(--panel);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:10}
 #map-wrap{flex:1;position:relative}
 #map{width:100%;height:100%}
 
-/* ── Sidebar header ── */
 .s-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
 .brand{font-family:var(--serif);font-size:17px}.brand em{color:var(--green);font-style:italic}
 .brand-sub{font-family:var(--mono);font-size:9px;color:var(--hint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
 
-/* ── Mode selector ── */
-.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
-.mode-btn{padding:8px 6px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);background:transparent;cursor:pointer;text-align:center;transition:.15s}
-.mode-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
-.mode-btn.active{border-color:var(--green);color:var(--green);background:var(--gbg)}
-.mode-btn.active-source{border-color:var(--green);color:var(--green);background:var(--gbg)}
-.mode-btn.active-sub{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
-.mode-btn.active-build{border-color:var(--amber);color:var(--amber);background:var(--abg)}
-.mode-btn.active-excl{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mode-btn{padding:7px 4px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);background:transparent;cursor:pointer;text-align:center;transition:.15s;line-height:1.3}
+.mode-btn:hover{color:var(--text);background:var(--bg3)}
+.mode-btn.m-source{border-color:var(--green);color:var(--green);background:var(--gbg)}
+.mode-btn.m-sub{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+.mode-btn.m-excl{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+.mode-btn.m-view{border-color:var(--border2);color:var(--muted)}
 
-/* ── Scroll area ── */
-.s-scroll{flex:1;overflow-y:auto;padding:14px}
+.s-scroll{flex:1;overflow-y:auto;padding:12px}
 .s-scroll::-webkit-scrollbar{width:3px}
 .s-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
-/* ── Section labels ── */
-.lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--hint);margin:12px 0 7px}
+.lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--hint);margin:10px 0 6px}
 .lbl:first-child{margin-top:0}
 
-/* ── Point list ── */
-.pt-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px;font-size:12px}
-.pt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.pt-label{flex:1;font-family:var(--mono);font-size:10px}
-.pt-coords{font-family:var(--mono);font-size:9px;color:var(--hint)}
-.pt-del{width:18px;height:18px;border:none;background:transparent;color:var(--hint);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;transition:.15s}
+/* Import zone */
+.import-zone{border:1px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:8px}
+.import-zone:hover{border-color:var(--green);background:var(--gbg)}
+.import-zone.has-data{border-color:var(--green);border-style:solid;background:var(--gbg)}
+.import-icon{width:28px;height:28px;margin:0 auto 8px;color:var(--hint)}
+.import-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.import-sub{font-family:var(--mono);font-size:9px;color:var(--hint)}
+.import-result{font-family:var(--mono);font-size:10px;color:var(--green);margin-top:6px}
+
+/* Points list */
+.pt-item{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:4px;font-size:11px}
+.pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pt-label{flex:1;font-family:var(--mono);font-size:9px}
+.pt-coords{font-family:var(--mono);font-size:8px;color:var(--hint)}
+.pt-del{width:16px;height:16px;border:none;background:transparent;color:var(--hint);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:3px;flex-shrink:0;transition:.15s}
 .pt-del:hover{color:var(--coral);background:var(--cbg)}
 
-/* ── Buttons ── */
-.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 14px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text);background:var(--bg3);cursor:pointer;transition:.15s;margin-bottom:7px}
-.btn:hover{border-color:var(--border2);background:var(--bg4)}
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--text);background:var(--bg3);cursor:pointer;transition:.15s;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.btn:hover{background:var(--bg4)}
 .btn.primary{background:var(--green);border-color:var(--green);color:#001a0f}
 .btn.primary:hover{background:#00e89f}
-.btn.danger{border-color:var(--border2)}
 .btn.danger:hover{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
-.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled{opacity:.35;cursor:not-allowed}
 
-/* ── Stats card ── */
-.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:7px}
-.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:4px}
+/* Stats */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:3px}
 .stat-row:last-child{margin:0}
 .stat-key{color:var(--muted);font-family:var(--mono);font-size:9px}
-.stat-val{font-weight:600;font-family:var(--mono);font-size:11px}
+.stat-val{font-weight:600;font-family:var(--mono);font-size:11px;color:var(--green)}
 
-/* ── Constraint toggles ── */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+/* Toggles */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
 .toggle-row:last-child{border:none}
-.toggle-label{font-size:12px;display:flex;align-items:center;gap:6px}
-.toggle-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.toggle{position:relative;width:30px;height:16px;flex-shrink:0}
+.toggle-label{font-size:11px;display:flex;align-items:center;gap:5px}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.toggle{position:relative;width:28px;height:15px;flex-shrink:0}
 .toggle input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:8px;cursor:pointer;transition:.2s}
-.toggle input:checked+.toggle-track{background:var(--green)}
-.toggle-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none}
-.toggle input:checked~.toggle-thumb{transform:translateX(14px)}
+.ttrack{position:absolute;inset:0;background:var(--border2);border-radius:8px;cursor:pointer;transition:.2s}
+.toggle input:checked+.ttrack{background:var(--green)}
+.tthumb{position:absolute;top:2px;left:2px;width:11px;height:11px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none}
+.toggle input:checked~.tthumb{transform:translateX(13px)}
 
-/* ── Progress ── */
-.progress-wrap{margin-top:8px}
-.progress-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:5px}
-.progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+/* Progress */
+.prog-wrap{margin-top:6px}
+.prog-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:4px}
+.prog-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
 
-/* ── Map controls overlay ── */
-#map-hint{
-  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
-  background:rgba(14,15,17,.85);backdrop-filter:blur(8px);
-  border:1px solid var(--border2);border-radius:8px;
-  padding:8px 16px;font-family:var(--mono);font-size:10px;color:var(--muted);
-  pointer-events:none;white-space:nowrap;z-index:5;transition:.3s;
-}
-
-/* ── Constraint legend overlay ── */
-#legend{
-  position:absolute;top:12px;right:12px;
-  background:rgba(14,15,17,.88);backdrop-filter:blur(8px);
-  border:1px solid var(--border2);border-radius:10px;
-  padding:12px 14px;z-index:5;min-width:160px;
-}
-.leg-title{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--hint);margin-bottom:8px}
-.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:var(--muted)}
+/* Map overlays */
+#map-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(14,15,17,.88);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:8px;padding:7px 14px;font-family:var(--mono);font-size:10px;color:var(--muted);pointer-events:none;white-space:nowrap;z-index:5}
+#legend{position:absolute;top:12px;right:12px;background:rgba(14,15,17,.88);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;z-index:5;min-width:155px}
+.leg-title{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--hint);margin-bottom:7px}
+.leg-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;color:var(--muted)}
 .leg-row:last-child{margin:0}
-.leg-line{width:20px;height:3px;border-radius:2px;flex-shrink:0}
-.leg-dot-sm{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.leg-line{width:18px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 
-/* ── MapLibre popup ── */
+/* Popup */
 .maplibregl-popup-content{background:var(--bg3)!important;border:1px solid var(--border2)!important;border-radius:10px!important;padding:11px 13px!important;font-family:var(--mono)!important;font-size:10px!important;color:var(--text)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{display:none!important}
 
-/* ── Toast ── */
-#toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:6px;z-index:9999}
-.toast{padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);max-width:280px;animation:tin .2s ease}
-.toast.ok{border-color:#00c98a;color:var(--green)}
+/* Toast */
+#toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:5px;z-index:9999}
+.toast{padding:8px 13px;border-radius:7px;font-family:var(--mono);font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);max-width:280px;animation:tin .2s ease}
+.toast.ok{border-color:var(--green);color:var(--green)}
 .toast.err{border-color:var(--coral);color:var(--coral)}
 .toast.info{border-color:var(--blue);color:var(--blue)}
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-
 .maplibregl-canvas{outline:none}
-hr{border:none;border-top:1px solid var(--border);margin:10px 0}
+hr{border:none;border-top:1px solid var(--border);margin:9px 0}
 </style>
 </head>
 <body>
@@ -144,85 +129,64 @@ hr{border:none;border-top:1px solid var(--border);margin:10px 0}
     <div class="brand-sub">Tracé réseau chauffage</div>
   </div>
 
-  <!-- Mode de saisie -->
+  <!-- Modes -->
   <div class="mode-row">
-    <button class="mode-btn active-source active" id="btn-source" onclick="setMode('source')">
-      Source chaleur
-    </button>
-    <button class="mode-btn" id="btn-sub" onclick="setMode('sub')">
-      Sous-station
-    </button>
-    <button class="mode-btn" id="btn-build" onclick="setMode('build')">
-      Bâtiment
-    </button>
-    <button class="mode-btn" id="btn-excl" onclick="setMode('excl')">
-      Zone exclue
-    </button>
+    <button class="mode-btn m-source" id="btn-source" onclick="setMode('source')">Source chaleur</button>
+    <button class="mode-btn" id="btn-sub" onclick="setMode('sub')">Sous-station</button>
+    <button class="mode-btn" id="btn-excl" onclick="setMode('excl')">Zone exclue</button>
+    <button class="mode-btn" id="btn-view" onclick="setMode('view')">Navigation</button>
   </div>
 
   <div class="s-scroll">
 
-    <!-- Points placés -->
-    <p class="lbl">Points placés</p>
+    <!-- Import points de consommation -->
+    <p class="lbl">Points de consommation</p>
+    <div class="import-zone" id="import-zone" onclick="document.getElementById('file-import').click()"
+         ondragover="e=>e.preventDefault()" ondrop="onDropImport(event)">
+      <svg class="import-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+      <div class="import-title">Importer les points</div>
+      <div class="import-sub">GeoJSON · CSV · Shapefile (.zip)</div>
+      <div class="import-result" id="import-result" style="display:none"></div>
+    </div>
+    <input type="file" id="file-import" accept=".geojson,.json,.csv,.zip" style="display:none" onchange="onFileImport(this)">
+
+    <hr>
+
+    <!-- Points manuels -->
+    <p class="lbl">Points manuels</p>
     <div id="points-list">
-      <p style="font-family:var(--mono);font-size:10px;color:var(--hint)">Cliquez sur la carte pour placer des points.</p>
+      <p style="font-family:var(--mono);font-size:9px;color:var(--hint)">Sélectionnez un mode et cliquez sur la carte.</p>
     </div>
 
     <hr>
 
-    <!-- Contraintes publiques -->
+    <!-- Contraintes -->
     <p class="lbl">Contraintes environnementales</p>
-    <div id="constraints-list">
+    <div>
       <div class="toggle-row">
-        <div class="toggle-label">
-          <div class="toggle-dot" style="background:#ff6b52"></div>
-          Zones Natura 2000
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="tog-natura" checked onchange="toggleConstraint('natura')">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
+        <div class="toggle-label"><div class="tdot" style="background:#ff6b52"></div>Natura 2000</div>
+        <label class="toggle"><input type="checkbox" id="tog-natura" checked onchange="toggleLayer('natura')"><div class="ttrack"></div><div class="tthumb"></div></label>
       </div>
       <div class="toggle-row">
-        <div class="toggle-label">
-          <div class="toggle-dot" style="background:#4d9fff"></div>
-          Cours d'eau
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="tog-water" checked onchange="toggleConstraint('water')">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
+        <div class="toggle-label"><div class="tdot" style="background:#4d9fff"></div>Cours d'eau</div>
+        <label class="toggle"><input type="checkbox" id="tog-water" checked onchange="toggleLayer('water')"><div class="ttrack"></div><div class="tthumb"></div></label>
       </div>
       <div class="toggle-row">
-        <div class="toggle-label">
-          <div class="toggle-dot" style="background:#f5a623"></div>
-          Pentes > 15%
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="tog-slope" checked onchange="toggleConstraint('slope')">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
+        <div class="toggle-label"><div class="tdot" style="background:#f5a623"></div>Pentes > 15%</div>
+        <label class="toggle"><input type="checkbox" id="tog-slope" checked onchange="toggleLayer('slope')"><div class="ttrack"></div><div class="tthumb"></div></label>
       </div>
       <div class="toggle-row">
-        <div class="toggle-label">
-          <div class="toggle-dot" style="background:#8b9099"></div>
-          Zones bâties
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="tog-build" checked onchange="toggleConstraint('building')">
-          <div class="toggle-track"></div>
-          <div class="toggle-thumb"></div>
-        </label>
+        <div class="toggle-label"><div class="tdot" style="background:#8b9099"></div>Zones bâties</div>
+        <label class="toggle"><input type="checkbox" id="tog-building" checked onchange="toggleLayer('building')"><div class="ttrack"></div><div class="tthumb"></div></label>
       </div>
     </div>
 
-    <div id="constraints-status" style="margin-top:8px;display:none">
-      <div class="progress-wrap">
-        <div class="progress-label" id="constraint-label">Chargement des contraintes…</div>
-        <div class="progress-bar"><div class="progress-fill" id="constraint-progress" style="width:0%"></div></div>
+    <div id="prog-wrap" style="display:none;margin-top:8px">
+      <div class="prog-wrap">
+        <div class="prog-lbl" id="prog-lbl">Chargement…</div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
       </div>
     </div>
 
@@ -230,38 +194,19 @@ hr{border:none;border-top:1px solid var(--border);margin:10px 0}
 
     <!-- Actions -->
     <p class="lbl">Actions</p>
-    <button class="btn primary" id="btn-trace" onclick="computeTrace()" disabled>
-      Calculer le tracé optimal
-    </button>
-    <button class="btn" id="btn-constraints" onclick="loadConstraints()" disabled>
-      Charger les contraintes
-    </button>
-    <button class="btn danger" onclick="clearAll()">
-      Tout effacer
-    </button>
+    <button class="btn primary" id="btn-trace" onclick="computeTrace()" disabled>Calculer le tracé</button>
+    <button class="btn" id="btn-constraints" onclick="loadConstraints()" disabled>Charger les contraintes</button>
+    <button class="btn danger" onclick="clearAll()">Tout effacer</button>
 
     <hr>
 
-    <!-- Statistiques du tracé -->
+    <!-- Résultats -->
     <div id="trace-stats" style="display:none">
-      <p class="lbl">Résultats du tracé</p>
+      <p class="lbl">Résultats</p>
       <div class="stat-card">
-        <div class="stat-row">
-          <span class="stat-key">Longueur totale</span>
-          <span class="stat-val" id="stat-length">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-key">Segments</span>
-          <span class="stat-val" id="stat-segments">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-key">Contraintes évitées</span>
-          <span class="stat-val" id="stat-avoided">—</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-key">Coût pondéré</span>
-          <span class="stat-val" id="stat-cost">—</span>
-        </div>
+        <div class="stat-row"><span class="stat-key">Longueur totale</span><span class="stat-val" id="s-length">—</span></div>
+        <div class="stat-row"><span class="stat-key">Raccordements</span><span class="stat-val" id="s-seg">—</span></div>
+        <div class="stat-row"><span class="stat-key">Zones évitées</span><span class="stat-val" id="s-avoid">—</span></div>
       </div>
       <button class="btn" onclick="exportTrace()">Exporter GeoJSON</button>
     </div>
@@ -272,17 +217,14 @@ hr{border:none;border-top:1px solid var(--border);margin:10px 0}
 <!-- ══ MAP ══ -->
 <div id="map-wrap">
   <div id="map"></div>
-
-  <div id="map-hint">Cliquez sur la carte pour placer une source de chaleur</div>
-
+  <div id="map-hint">Sélectionnez un mode puis cliquez sur la carte</div>
   <div id="legend">
     <div class="leg-title">Légende</div>
-    <div class="leg-row"><div class="leg-dot-sm" style="background:#00c98a;border:2px solid #fff"></div>Source chaleur</div>
-    <div class="leg-row"><div class="leg-dot-sm" style="background:#4d9fff;border:2px solid #fff"></div>Sous-station</div>
-    <div class="leg-row"><div class="leg-dot-sm" style="background:#f5a623;border:2px solid #fff"></div>Bâtiment raccordé</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#f5a623;border:2px solid #fff"></div>Points de consommation</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#00c98a;border:2px solid #fff"></div>Source de chaleur</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#4d9fff;border:2px solid #fff"></div>Sous-station</div>
     <div class="leg-row"><div class="leg-line" style="background:#00c98a"></div>Tracé principal</div>
-    <div class="leg-row"><div class="leg-line" style="background:#4d9fff;border-top:2px dashed #4d9fff;height:0"></div>Tracé secondaire</div>
-    <div class="leg-row"><div class="leg-line" style="background:#ff6b52;opacity:.5;height:8px;border-radius:2px"></div>Zone exclue</div>
+    <div class="leg-row"><div class="leg-line" style="background:#ff6b52;height:8px;opacity:.4;border-radius:2px"></div>Zone exclue</div>
   </div>
 </div>
 
@@ -291,484 +233,438 @@ hr{border:none;border-top:1px solid var(--border);margin:10px 0}
 
 <script>
 /* ══ État ══════════════════════════════════════════════════════════════════ */
-let map, mode = 'source';
-let points = [];          // {id, type, lng, lat, marker}
-let exclusions = [];      // polygones dessinés
-let traceLines = [];      // résultats tracé
-let constraints = {};     // données contraintes chargées
-let constraintsLoaded = false;
-let drawingExclusion = false;
-let exclusionCoords = [];
+let map, mode = 'view';
+let manualPoints = [];
+let importedPoints = null;
+let exclusions = [];
+let constraints = {};
+let drawingExcl = false, exclCoords = [];
 
-const COLORS = {
-  source: '#00c98a',
-  sub:    '#4d9fff',
-  build:  '#f5a623',
-  excl:   '#ff6b52',
-};
-
+const COLORS = { source:'#00c98a', sub:'#4d9fff', excl:'#ff6b52' };
 const HINTS = {
-  source: 'Cliquez pour placer une source de chaleur',
+  source: 'Cliquez pour placer la source de chaleur',
   sub:    'Cliquez pour placer une sous-station',
-  build:  'Cliquez pour placer un bâtiment raccordé',
-  excl:   'Cliquez pour délimiter une zone exclue (double-clic pour terminer)',
+  excl:   'Cliquez pour tracer une zone exclue (double-clic pour terminer)',
+  view:   'Navigation — cliquez un point pour voir ses détails',
 };
 
-/* ══ Init carte ═══════════════════════════════════════════════════════════ */
+/* ══ Carte ════════════════════════════════════════════════════════════════ */
 map = new maplibregl.Map({
   container: 'map',
-  style: {
-    version: 8,
-    sources: { osm: { type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256, attribution:'© OSM', maxzoom:19 }},
-    layers: [{ id:'osm', type:'raster', source:'osm', paint:{'raster-opacity':.3}}]
-  },
-  center: [2.5, 46.5], zoom: 6
+  style: { version:8, sources:{osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OSM',maxzoom:19}}, layers:[{id:'osm',type:'raster',source:'osm',paint:{'raster-opacity':.28}}] },
+  center:[2.5,46.5], zoom:6
 });
-map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+map.addControl(new maplibregl.NavigationControl(),'bottom-right');
 
 map.on('load', () => {
-  // Sources pour les contraintes
-  map.addSource('natura', { type:'geojson', data: emptyFC() });
-  map.addSource('water',  { type:'geojson', data: emptyFC() });
-  map.addSource('slope',  { type:'geojson', data: emptyFC() });
-  map.addSource('building',{ type:'geojson', data: emptyFC() });
-  map.addSource('excl-areas', { type:'geojson', data: emptyFC() });
-  map.addSource('trace',  { type:'geojson', data: emptyFC() });
-  map.addSource('trace-sec', { type:'geojson', data: emptyFC() });
+  // Sources
+  ['natura','water','slope','building','excl-areas','conso-pts','trace'].forEach(id => {
+    map.addSource(id, {type:'geojson', data:fc()});
+  });
 
-  // Layers contraintes
-  map.addLayer({ id:'natura-layer', type:'fill', source:'natura',
-    paint:{ 'fill-color':'#ff6b52', 'fill-opacity':0.25 }});
-  map.addLayer({ id:'natura-outline', type:'line', source:'natura',
-    paint:{ 'line-color':'#ff6b52', 'line-width':1 }});
-
-  map.addLayer({ id:'water-layer', type:'fill', source:'water',
-    paint:{ 'fill-color':'#4d9fff', 'fill-opacity':0.3 }});
-  map.addLayer({ id:'water-outline', type:'line', source:'water',
-    paint:{ 'line-color':'#4d9fff', 'line-width':1.5 }});
-
-  map.addLayer({ id:'slope-layer', type:'fill', source:'slope',
-    paint:{ 'fill-color':'#f5a623', 'fill-opacity':0.2 }});
-
-  map.addLayer({ id:'building-layer', type:'fill', source:'building',
-    paint:{ 'fill-color':'#8b9099', 'fill-opacity':0.3 }});
+  // Couches contraintes
+  map.addLayer({id:'natura-fill',type:'fill',source:'natura',paint:{'fill-color':'#ff6b52','fill-opacity':.22}});
+  map.addLayer({id:'natura-line',type:'line',source:'natura',paint:{'line-color':'#ff6b52','line-width':1}});
+  map.addLayer({id:'water-fill', type:'fill',source:'water', paint:{'fill-color':'#4d9fff','fill-opacity':.28}});
+  map.addLayer({id:'water-line', type:'line',source:'water', paint:{'line-color':'#4d9fff','line-width':1.5}});
+  map.addLayer({id:'slope-fill', type:'fill',source:'slope', paint:{'fill-color':'#f5a623','fill-opacity':.2}});
+  map.addLayer({id:'building-fill',type:'fill',source:'building',paint:{'fill-color':'#8b9099','fill-opacity':.28}});
 
   // Zones exclues manuelles
-  map.addLayer({ id:'excl-layer', type:'fill', source:'excl-areas',
-    paint:{ 'fill-color':'#ff4444', 'fill-opacity':0.2 }});
-  map.addLayer({ id:'excl-outline', type:'line', source:'excl-areas',
-    paint:{ 'line-color':'#ff4444', 'line-width':1.5, 'line-dasharray':[4,2] }});
+  map.addLayer({id:'excl-fill',type:'fill',source:'excl-areas',paint:{'fill-color':'#ff4444','fill-opacity':.18}});
+  map.addLayer({id:'excl-line',type:'line',source:'excl-areas',paint:{'line-color':'#ff4444','line-width':1.5,'line-dasharray':[4,2]}});
 
-  // Tracé réseau
-  map.addLayer({ id:'trace-layer', type:'line', source:'trace',
-    paint:{ 'line-color':'#00c98a', 'line-width':3, 'line-opacity':0.9 }});
-  map.addLayer({ id:'trace-sec-layer', type:'line', source:'trace-sec',
-    paint:{ 'line-color':'#4d9fff', 'line-width':2, 'line-opacity':0.8, 'line-dasharray':[6,3] }});
+  // Points de consommation importés
+  map.addLayer({id:'conso-circle',type:'circle',source:'conso-pts',paint:{
+    'circle-color':'#f5a623','circle-radius':5,
+    'circle-stroke-width':1.5,'circle-stroke-color':'#0e0f11','circle-opacity':.85
+  }});
+
+  // Tracé
+  map.addLayer({id:'trace-line',type:'line',source:'trace',paint:{'line-color':'#00c98a','line-width':3,'line-opacity':.9}});
+
+  // Click sur points importés → popup
+  map.on('click','conso-circle', e => {
+    const p = e.features[0].properties;
+    const rows = Object.entries(p).filter(([k])=>!k.startsWith('_')).slice(0,8)
+      .map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--hint)">${k}</span><span>${v}</span></div>`).join('');
+    new maplibregl.Popup({closeButton:true,maxWidth:'220px'})
+      .setLngLat(e.lngLat)
+      .setHTML(`<div style="font-weight:600;color:#f5a623;margin-bottom:7px">Point de consommation</div>${rows}`)
+      .addTo(map);
+  });
+  map.on('mouseenter','conso-circle',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave','conso-circle',()=>map.getCanvas().style.cursor= mode==='view'?'default':'crosshair');
 });
 
 /* ══ Clic carte ════════════════════════════════════════════════════════════ */
 map.on('click', e => {
-  const { lng, lat } = e.lngLat;
-
+  if (mode === 'view') return;
+  const {lng,lat} = e.lngLat;
   if (mode === 'excl') {
-    if (!drawingExclusion) {
-      drawingExclusion = true;
-      exclusionCoords = [[lng, lat]];
-      toast('Continuez à cliquer · Double-clic pour terminer', 'info');
-    } else {
-      exclusionCoords.push([lng, lat]);
-    }
+    if (!drawingExcl) { drawingExcl=true; exclCoords=[[lng,lat]]; toast('Continuez à cliquer · Double-clic pour terminer','info'); }
+    else exclCoords.push([lng,lat]);
     return;
   }
-
-  addPoint(lng, lat, mode);
+  addManualPoint(lng, lat, mode);
 });
 
 map.on('dblclick', e => {
-  if (mode !== 'excl' || !drawingExclusion) return;
+  if (mode!=='excl'||!drawingExcl) return;
   e.preventDefault();
-  exclusionCoords.push(exclusionCoords[0]); // fermer le polygone
-  if (exclusionCoords.length >= 4) {
-    const fc = map.getSource('excl-areas')?._data || emptyFC();
-    fc.features.push({ type:'Feature', geometry:{ type:'Polygon', coordinates:[exclusionCoords] }, properties:{} });
-    map.getSource('excl-areas').setData(fc);
-    exclusions.push([...exclusionCoords]);
-    toast('Zone exclue ajoutée', 'ok');
+  exclCoords.push(exclCoords[0]);
+  if (exclCoords.length >= 4) {
+    const d = map.getSource('excl-areas')?._data || fc();
+    d.features.push({type:'Feature',geometry:{type:'Polygon',coordinates:[exclCoords]},properties:{}});
+    map.getSource('excl-areas').setData(d);
+    exclusions.push([...exclCoords]);
+    toast('Zone exclue ajoutée','ok');
   }
-  drawingExclusion = false;
-  exclusionCoords = [];
+  drawingExcl=false; exclCoords=[];
 });
 
-/* ══ Points ════════════════════════════════════════════════════════════════ */
-function addPoint(lng, lat, type) {
+/* ══ Import fichier ════════════════════════════════════════════════════════ */
+function onDropImport(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if (f) uploadImport(f);
+}
+function onFileImport(input) {
+  if (input.files[0]) uploadImport(input.files[0]);
+}
+
+async function uploadImport(file) {
+  const zone = document.getElementById('import-zone');
+  const result = document.getElementById('import-result');
+  zone.style.opacity = '.5';
+  result.style.display = 'none';
+  toast('Import en cours…','info');
+
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch('/api/import-points', {method:'POST', body:fd});
+    if (!r.ok) { const e=await r.json(); throw new Error(e.detail); }
+    const data = await r.json();
+
+    importedPoints = data;
+    map.getSource('conso-pts')?.setData(data.geojson);
+
+    // Zoom sur les points
+    const b = data.bounds;
+    if (b && b[2]>b[0]) map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:60,duration:700});
+
+    zone.classList.add('has-data');
+    result.style.display = 'block';
+    result.textContent = `✓ ${data.feature_count} points chargés`;
+
+    updateButtons();
+    toast(`${data.feature_count} points importés — ${data.filename}`,'ok');
+  } catch(e) {
+    toast(e.message,'err');
+  } finally {
+    zone.style.opacity = '1';
+    document.getElementById('file-import').value = '';
+  }
+}
+
+/* ══ Points manuels ════════════════════════════════════════════════════════ */
+function addManualPoint(lng, lat, type) {
   const id = Date.now();
   const color = COLORS[type];
-  const labels = { source:'Source', sub:'Sous-station', build:'Bâtiment' };
+  const labels = {source:'Source',sub:'Sous-station'};
 
   const el = document.createElement('div');
-  el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;cursor:pointer;box-shadow:0 0 0 3px ${color}33`;
+  el.style.cssText = `width:16px;height:16px;border-radius:50%;background:${color};border:2.5px solid #fff;cursor:pointer;box-shadow:0 0 0 3px ${color}40`;
 
-  const marker = new maplibregl.Marker({ element: el })
-    .setLngLat([lng, lat])
-    .addTo(map);
-
-  const pt = { id, type, lng, lat, marker };
-  points.push(pt);
+  const marker = new maplibregl.Marker({element:el}).setLngLat([lng,lat]).addTo(map);
+  const pt = {id,type,lng,lat,marker};
+  manualPoints.push(pt);
 
   el.addEventListener('click', ev => {
     ev.stopPropagation();
-    new maplibregl.Popup({ closeButton: true, maxWidth: '200px' })
-      .setLngLat([lng, lat])
-      .setHTML(`<div style="font-weight:600;color:${color};margin-bottom:5px">${labels[type]||type}</div>
-        <div style="color:var(--hint)">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
-        <button onclick="removePoint(${id})" style="margin-top:8px;padding:4px 10px;background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--coral);font-family:var(--mono);font-size:9px;cursor:pointer;width:100%">Supprimer</button>`)
+    new maplibregl.Popup({closeButton:true,maxWidth:'180px'})
+      .setLngLat([lng,lat])
+      .setHTML(`<div style="font-weight:600;color:${color};margin-bottom:5px">${labels[type]}</div>
+        <div style="color:var(--hint);font-size:9px">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+        <button onclick="removePoint(${id})" style="margin-top:8px;padding:3px 10px;background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--coral);font-family:var(--mono);font-size:9px;cursor:pointer;width:100%">Supprimer</button>`)
       .addTo(map);
   });
 
-  renderPointsList();
+  renderPoints();
   updateButtons();
-  toast(`${labels[type]} ajouté`, 'ok');
+  toast(`${labels[type]} ajouté`,'ok');
 }
 
 function removePoint(id) {
-  const idx = points.findIndex(p => p.id === id);
-  if (idx === -1) return;
-  points[idx].marker.remove();
-  points.splice(idx, 1);
-  renderPointsList();
+  const i = manualPoints.findIndex(p=>p.id===id);
+  if (i===-1) return;
+  manualPoints[i].marker.remove();
+  manualPoints.splice(i,1);
+  renderPoints();
   updateButtons();
-  document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
+  document.querySelectorAll('.maplibregl-popup').forEach(p=>p.remove());
 }
 
-function renderPointsList() {
+function renderPoints() {
   const el = document.getElementById('points-list');
-  if (!points.length && !exclusions.length) {
-    el.innerHTML = '<p style="font-family:var(--mono);font-size:10px;color:var(--hint)">Cliquez sur la carte pour placer des points.</p>';
+  const labels = {source:'Source chaleur',sub:'Sous-station'};
+  if (!manualPoints.length && !exclusions.length) {
+    el.innerHTML='<p style="font-family:var(--mono);font-size:9px;color:var(--hint)">Sélectionnez un mode et cliquez sur la carte.</p>';
     return;
   }
-  const labels = { source:'Source', sub:'Sous-station', build:'Bâtiment' };
-  el.innerHTML = points.map(p => `
+  el.innerHTML = manualPoints.map(p=>`
     <div class="pt-item">
       <div class="pt-dot" style="background:${COLORS[p.type]}"></div>
       <div style="flex:1">
-        <div class="pt-label">${labels[p.type]||p.type}</div>
+        <div class="pt-label">${labels[p.type]}</div>
         <div class="pt-coords">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</div>
       </div>
       <button class="pt-del" onclick="removePoint(${p.id})">×</button>
     </div>`).join('') +
-    (exclusions.length ? `<div class="pt-item"><div class="pt-dot" style="background:#ff4444"></div><div class="pt-label">${exclusions.length} zone(s) exclue(s)</div></div>` : '');
+    (exclusions.length?`<div class="pt-item"><div class="pt-dot" style="background:#ff4444"></div><div class="pt-label">${exclusions.length} zone(s) exclue(s)</div></div>`:'');
 }
 
 /* ══ Mode ══════════════════════════════════════════════════════════════════ */
 function setMode(m) {
   mode = m;
-  const activeClass = { source:'active-source', sub:'active-sub', build:'active-build', excl:'active-excl' };
-  ['source','sub','build','excl'].forEach(k => {
-    const btn = document.getElementById('btn-'+k);
-    btn.className = 'mode-btn' + (k === m ? ' ' + activeClass[k] + ' active' : '');
+  const cls = {source:'m-source',sub:'m-sub',excl:'m-excl',view:'m-view'};
+  ['source','sub','excl','view'].forEach(k => {
+    const b = document.getElementById('btn-'+k);
+    b.className = 'mode-btn' + (k===m?' '+cls[k]:'');
   });
   document.getElementById('map-hint').textContent = HINTS[m];
-  map.getCanvas().style.cursor = 'crosshair';
+  map.getCanvas().style.cursor = m==='view' ? 'default' : 'crosshair';
 }
 
-/* ══ Contraintes (Overpass + IGN) ══════════════════════════════════════════ */
+/* ══ Contraintes ═══════════════════════════════════════════════════════════ */
 async function loadConstraints() {
-  const hasSrc = points.some(p => p.type === 'source');
-  const hasEnd = points.some(p => p.type === 'sub' || p.type === 'build');
-  if (!hasSrc || !hasEnd) { toast('Placez au moins une source et un point de destination', 'err'); return; }
+  const src = manualPoints.find(p=>p.type==='source');
+  if (!src && !importedPoints) { toast('Placez une source de chaleur ou importez des points','err'); return; }
 
   const bbox = getBBox();
-  document.getElementById('constraints-status').style.display = 'block';
+  document.getElementById('prog-wrap').style.display = 'block';
   document.getElementById('btn-constraints').disabled = true;
-  setProgress(5, 'Calcul de la zone…');
+  setProgress(5,'Calcul de la zone…');
 
   try {
-    await loadWater(bbox);    setProgress(35, 'Cours d\'eau chargés…');
-    await loadBuildings(bbox);setProgress(65, 'Bâtiments chargés…');
-    await loadNatura(bbox);   setProgress(90, 'Natura 2000 chargé…');
-    setProgress(100, 'Contraintes prêtes');
-    constraintsLoaded = true;
+    await loadWater(bbox);    setProgress(40,'Cours d\'eau chargés');
+    await loadBuildings(bbox);setProgress(75,'Bâtiments chargés');
+    await loadNatura(bbox);   setProgress(100,'Contraintes prêtes');
     updateButtons();
-    toast('Contraintes chargées', 'ok');
-    setTimeout(() => document.getElementById('constraints-status').style.display='none', 2000);
+    toast('Contraintes chargées','ok');
+    setTimeout(()=>document.getElementById('prog-wrap').style.display='none',2000);
   } catch(e) {
-    toast('Erreur chargement : ' + e.message, 'err');
+    toast('Erreur : '+e.message,'err');
     document.getElementById('btn-constraints').disabled = false;
   }
 }
 
-function getBBox(buffer = 0.05) {
-  const lngs = points.map(p => p.lng);
-  const lats = points.map(p => p.lat);
+function getBBox(buf=0.05) {
+  const pts = [...manualPoints.map(p=>({lng:p.lng,lat:p.lat}))];
+  if (importedPoints?.bounds) {
+    const b = importedPoints.bounds;
+    pts.push({lng:b[0],lat:b[1]},{lng:b[2],lat:b[3]});
+  }
+  if (!pts.length) return {minLng:2,maxLng:3,minLat:48,maxLat:49};
   return {
-    minLng: Math.min(...lngs) - buffer,
-    maxLng: Math.max(...lngs) + buffer,
-    minLat: Math.min(...lats) - buffer,
-    maxLat: Math.max(...lats) + buffer,
+    minLng:Math.min(...pts.map(p=>p.lng))-buf,
+    maxLng:Math.max(...pts.map(p=>p.lng))+buf,
+    minLat:Math.min(...pts.map(p=>p.lat))-buf,
+    maxLat:Math.max(...pts.map(p=>p.lat))+buf,
   };
 }
 
+async function overpassQuery(q) {
+  const r = await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q});
+  return r.json();
+}
+
 async function loadWater(bbox) {
-  const q = `[out:json][timeout:25];
-    (way["waterway"~"river|stream|canal"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
-     relation["natural"="water"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
-     way["natural"="water"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););
-    out geom;`;
-  const r = await fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q });
-  const data = await r.json();
-  const fc = overpassToGeoJSON(data, bbox);
-  map.getSource('water')?.setData(fc);
-  constraints.water = fc;
+  const q=`[out:json][timeout:25];(way["waterway"~"river|stream|canal"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});way["natural"="water"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););out geom;`;
+  const data = await overpassQuery(q);
+  const gj = osmToGeoJSON(data);
+  map.getSource('water')?.setData(gj);
+  constraints.water = gj;
 }
 
 async function loadBuildings(bbox) {
-  const q = `[out:json][timeout:25];
-    (way["building"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
-     relation["building"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););
-    out geom;`;
-  const r = await fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q });
-  const data = await r.json();
-  const fc = overpassToGeoJSON(data, bbox);
-  map.getSource('building')?.setData(fc);
-  constraints.building = fc;
+  const q=`[out:json][timeout:25];(way["building"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););out geom;`;
+  const data = await overpassQuery(q);
+  const gj = osmToGeoJSON(data);
+  map.getSource('building')?.setData(gj);
+  constraints.building = gj;
 }
 
 async function loadNatura(bbox) {
   try {
-    const url = `https://ws.carmencarto.fr/WFS/119/fsd?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=fsd:ZNIEFF1_POLY,fsd:ZNIEFF2_POLY&BBOX=${bbox.minLng},${bbox.minLat},${bbox.maxLng},${bbox.maxLat}&SRSNAME=EPSG:4326&OUTPUTFORMAT=application/json&COUNT=50`;
+    const url=`https://ws.carmencarto.fr/WFS/119/fsd?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=fsd:ZNIEFF1_POLY&BBOX=${bbox.minLng},${bbox.minLat},${bbox.maxLng},${bbox.maxLat}&SRSNAME=EPSG:4326&OUTPUTFORMAT=application/json&COUNT=30`;
     const r = await fetch(url);
-    if (!r.ok) throw new Error('WFS indisponible');
-    const fc = await r.json();
-    map.getSource('natura')?.setData(fc);
-    constraints.natura = fc;
+    if (!r.ok) throw new Error();
+    const gj = await r.json();
+    map.getSource('natura')?.setData(gj);
+    constraints.natura = gj;
   } catch {
-    constraints.natura = emptyFC();
-    toast('Natura 2000 : service temporairement indisponible', 'info');
+    constraints.natura = fc();
+    toast('Natura 2000 non disponible sur cette zone','info');
   }
 }
 
-function overpassToGeoJSON(data) {
+function osmToGeoJSON(data) {
   const features = [];
-  data.elements?.forEach(el => {
-    if (el.type === 'way' && el.geometry) {
-      const coords = el.geometry.map(g => [g.lon, g.lat]);
-      if (coords.length >= 3) {
-        const closed = [...coords];
-        if (closed[0][0] !== closed[closed.length-1][0]) closed.push(closed[0]);
-        features.push({ type:'Feature', geometry:{ type:'Polygon', coordinates:[closed] }, properties: el.tags || {} });
-      } else {
-        features.push({ type:'Feature', geometry:{ type:'LineString', coordinates:coords }, properties: el.tags || {} });
-      }
+  (data.elements||[]).forEach(el => {
+    if (el.type==='way' && el.geometry?.length>=3) {
+      const coords = el.geometry.map(g=>[g.lon,g.lat]);
+      const closed = [...coords];
+      if (closed[0][0]!==closed[closed.length-1][0]) closed.push(closed[0]);
+      features.push({type:'Feature',geometry:{type:'Polygon',coordinates:[closed]},properties:el.tags||{}});
     }
   });
-  return { type:'FeatureCollection', features };
+  return {type:'FeatureCollection',features};
 }
 
-function setProgress(pct, label) {
-  document.getElementById('constraint-progress').style.width = pct + '%';
-  document.getElementById('constraint-label').textContent = label;
+function setProgress(pct,lbl) {
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=lbl;
 }
 
-function toggleConstraint(name) {
-  const layerMap = {
-    natura: ['natura-layer','natura-outline'],
-    water:  ['water-layer','water-outline'],
-    slope:  ['slope-layer'],
-    building:['building-layer'],
-  };
-  const checked = document.getElementById('tog-'+name).checked;
-  layerMap[name]?.forEach(id => {
-    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', checked ? 'visible' : 'none');
-  });
+function toggleLayer(name) {
+  const map2 = {natura:['natura-fill','natura-line'],water:['water-fill','water-line'],slope:['slope-fill'],building:['building-fill']};
+  const on = document.getElementById('tog-'+name).checked;
+  (map2[name]||[]).forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');});
 }
 
-/* ══ Tracé réseau (algorithme Dijkstra simplifié) ══════════════════════════ */
+/* ══ Tracé ════════════════════════════════════════════════════════════════ */
 async function computeTrace() {
-  const sources = points.filter(p => p.type === 'source');
-  const destinations = points.filter(p => p.type === 'sub' || p.type === 'build');
-  if (!sources.length || !destinations.length) {
-    toast('Placez au moins une source et une destination', 'err');
-    return;
-  }
+  const src = manualPoints.find(p=>p.type==='source');
+  if (!src) { toast('Placez une source de chaleur','err'); return; }
 
-  toast('Calcul du tracé en cours…', 'info');
+  const destinations = [
+    ...manualPoints.filter(p=>p.type==='sub').map(p=>({lng:p.lng,lat:p.lat})),
+    ...(importedPoints?.geojson?.features||[])
+      .filter(f=>f.geometry?.type==='Point')
+      .map(f=>({lng:f.geometry.coordinates[0],lat:f.geometry.coordinates[1]}))
+  ];
+
+  if (!destinations.length) { toast('Aucun point de destination','err'); return; }
+
+  toast('Calcul du tracé…','info');
   document.getElementById('btn-trace').disabled = true;
+  await new Promise(r=>setTimeout(r,50));
 
-  await new Promise(r => setTimeout(r, 50));
-
-  // Construire le graphe de points intermédiaires
-  const src = sources[0];
-  const allLines = [];
-  let totalLength = 0;
-  let avoidedCount = 0;
-  let totalCost = 0;
+  const lines=[];
+  let totalLen=0, avoided=0;
 
   for (const dest of destinations) {
-    const result = dijkstraRoute(src, dest);
-    allLines.push(result.coords);
-    totalLength += result.length;
-    avoidedCount += result.avoided;
-    totalCost += result.cost;
+    const res = routeSegment(src, dest);
+    lines.push(res.coords);
+    totalLen += res.length;
+    avoided += res.avoided;
   }
 
-  // Tracé principal source → sous-stations
-  const mainLines = { type:'FeatureCollection', features: allLines.map(coords => ({
-    type:'Feature', geometry:{ type:'LineString', coordinates:coords }, properties:{}
-  }))};
-  map.getSource('trace')?.setData(mainLines);
+  const gj = {type:'FeatureCollection',features:lines.map(coords=>({type:'Feature',geometry:{type:'LineString',coordinates:coords},properties:{}}))};
+  map.getSource('trace')?.setData(gj);
 
-  // Stats
-  document.getElementById('trace-stats').style.display = 'block';
-  document.getElementById('stat-length').textContent = (totalLength / 1000).toFixed(2) + ' km';
-  document.getElementById('stat-segments').textContent = allLines.length;
-  document.getElementById('stat-avoided').textContent = avoidedCount + ' zones';
-  document.getElementById('stat-cost').textContent = totalCost.toFixed(0);
+  document.getElementById('trace-stats').style.display='block';
+  document.getElementById('s-length').textContent=(totalLen/1000).toFixed(2)+' km';
+  document.getElementById('s-seg').textContent=lines.length;
+  document.getElementById('s-avoid').textContent=avoided;
 
-  document.getElementById('btn-trace').disabled = false;
-  toast('Tracé calculé — ' + (totalLength/1000).toFixed(2) + ' km', 'ok');
+  document.getElementById('btn-trace').disabled=false;
+  toast(`Tracé calculé — ${(totalLen/1000).toFixed(2)} km`,'ok');
 
-  // Zoom sur le réseau
-  const allCoords = allLines.flat();
+  const allCoords=lines.flat();
   if (allCoords.length) {
-    const lngs = allCoords.map(c => c[0]);
-    const lats = allCoords.map(c => c[1]);
-    map.fitBounds([[Math.min(...lngs)-.005, Math.min(...lats)-.005],[Math.max(...lngs)+.005, Math.max(...lats)+.005]], { padding:60, duration:700 });
+    const lngs=allCoords.map(c=>c[0]),lats=allCoords.map(c=>c[1]);
+    map.fitBounds([[Math.min(...lngs)-.003,Math.min(...lats)-.003],[Math.max(...lngs)+.003,Math.max(...lats)+.003]],{padding:50,duration:600,maxZoom:16});
   }
 }
 
-function dijkstraRoute(src, dest) {
-  // Algorithme de routage avec points intermédiaires et pénalités de contraintes
-  const STEPS = 20;
-  const dLng = dest.lng - src.lng;
-  const dLat = dest.lat - src.lat;
-
-  // Générer une grille de waypoints
-  const waypoints = [];
-  for (let i = 0; i <= STEPS; i++) {
-    const t = i / STEPS;
-    const lng = src.lng + dLng * t;
-    const lat = src.lat + dLat * t;
-    waypoints.push([lng, lat]);
+function routeSegment(src, dest) {
+  const STEPS = 16;
+  const pts = [];
+  for (let i=0;i<=STEPS;i++) {
+    const t=i/STEPS;
+    pts.push([src.lng+(dest.lng-src.lng)*t, src.lat+(dest.lat-src.lat)*t]);
   }
-
-  // Appliquer déviation pour éviter les contraintes
-  const optimized = optimizeRoute(waypoints);
-
-  let length = 0;
-  let avoided = 0;
-  let cost = 0;
-
-  for (let i = 1; i < optimized.length; i++) {
-    const d = haversine(optimized[i-1], optimized[i]);
-    length += d;
-    const penalty = getCostPenalty(optimized[i]);
-    if (penalty > 1) avoided++;
-    cost += d * penalty;
-  }
-
-  return { coords: optimized, length, avoided, cost };
-}
-
-function optimizeRoute(waypoints) {
-  return waypoints.map(wp => {
-    const penalty = getCostPenalty(wp);
-    if (penalty <= 1.5) return wp;
-    // Dévier légèrement perpendiculairement
-    const offset = 0.003 * (Math.random() > 0.5 ? 1 : -1);
-    return [wp[0] + offset, wp[1] + offset * 0.7];
+  const optimized = pts.map(p => {
+    const pen = penalty(p);
+    if (pen<=1.5) return p;
+    const off = 0.002*(Math.random()>.5?1:-1);
+    return [p[0]+off, p[1]+off*.6];
   });
-}
-
-function getCostPenalty(coord) {
-  let penalty = 1.0;
-  // Vérifier contre les contraintes chargées
-  if (constraints.natura && pointInFeatures(coord, constraints.natura)) penalty += 10;
-  if (constraints.water  && pointInFeatures(coord, constraints.water))  penalty += 5;
-  if (constraints.building && pointInFeatures(coord, constraints.building)) penalty += 3;
-  // Zones exclues manuelles
-  for (const excl of exclusions) {
-    if (pointInPolygon(coord, excl)) penalty += 100;
+  let len=0, av=0;
+  for (let i=1;i<optimized.length;i++) {
+    len+=haversine(optimized[i-1],optimized[i]);
+    if(penalty(optimized[i])>1.5) av++;
   }
-  return penalty;
+  return {coords:optimized,length:len,avoided:av};
 }
 
-function pointInFeatures(coord, fc) {
-  for (const feat of (fc.features || [])) {
-    if (feat.geometry?.type === 'Polygon' && pointInPolygon(coord, feat.geometry.coordinates[0])) return true;
-  }
-  return false;
+function penalty(coord) {
+  let p=1;
+  if(constraints.natura && inFeatures(coord,constraints.natura)) p+=10;
+  if(constraints.water  && inFeatures(coord,constraints.water))  p+=5;
+  if(constraints.building && inFeatures(coord,constraints.building)) p+=3;
+  for(const ex of exclusions) if(pip(coord,ex)) p+=100;
+  return p;
 }
 
-function pointInPolygon(point, polygon) {
-  const [x, y] = point;
-  let inside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const [xi, yi] = polygon[i], [xj, yj] = polygon[j];
-    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+function inFeatures(coord,gj) {
+  return (gj.features||[]).some(f=>f.geometry?.type==='Polygon'&&pip(coord,f.geometry.coordinates[0]));
+}
+
+function pip([x,y],poly) {
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const [xi,yi]=poly[i],[xj,yj]=poly[j];
+    if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) inside=!inside;
   }
   return inside;
 }
 
-function haversine([lng1, lat1], [lng2, lat2]) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+function haversine([lng1,lat1],[lng2,lat2]) {
+  const R=6371000,dl=(lat2-lat1)*Math.PI/180,dg=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dl/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dg/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-/* ══ Export ════════════════════════════════════════════════════════════════ */
 function exportTrace() {
-  const src = map.getSource('trace')?._data;
-  if (!src) return;
-  const blob = new Blob([JSON.stringify(src, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'trace-reseau-chauffage.geojson';
+  const d=map.getSource('trace')?._data;
+  if(!d)return;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download='trace-reseau-chauffage.geojson';
   a.click();
-  toast('GeoJSON exporté', 'ok');
+  toast('GeoJSON exporté','ok');
 }
 
-/* ══ Utilitaires ═══════════════════════════════════════════════════════════ */
 function clearAll() {
-  points.forEach(p => p.marker.remove());
-  points = [];
-  exclusions = [];
-  constraintsLoaded = false;
-  constraints = {};
-  ['natura','water','slope','building','excl-areas','trace','trace-sec'].forEach(id => {
-    map.getSource(id)?.setData(emptyFC());
-  });
-  document.getElementById('trace-stats').style.display = 'none';
-  document.getElementById('constraints-status').style.display = 'none';
-  renderPointsList();
-  updateButtons();
-  toast('Effacé', 'info');
+  manualPoints.forEach(p=>p.marker.remove());
+  manualPoints=[]; exclusions=[]; importedPoints=null; constraints={};
+  ['natura','water','slope','building','excl-areas','conso-pts','trace'].forEach(id=>map.getSource(id)?.setData(fc()));
+  document.getElementById('trace-stats').style.display='none';
+  document.getElementById('prog-wrap').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('import-zone').classList.remove('has-data');
+  renderPoints(); updateButtons();
+  toast('Effacé','info');
 }
 
 function updateButtons() {
-  const hasSrc = points.some(p => p.type === 'source');
-  const hasDest = points.some(p => p.type === 'sub' || p.type === 'build');
-  const hasEnough = hasSrc && hasDest;
-  document.getElementById('btn-constraints').disabled = !hasEnough;
-  document.getElementById('btn-trace').disabled = !hasEnough;
+  const hasSrc = manualPoints.some(p=>p.type==='source');
+  const hasDest = manualPoints.some(p=>p.type==='sub') || importedPoints?.feature_count>0;
+  document.getElementById('btn-constraints').disabled = !(hasSrc||importedPoints);
+  document.getElementById('btn-trace').disabled = !(hasSrc&&hasDest);
 }
 
-function emptyFC() {
-  return { type:'FeatureCollection', features:[] };
+function fc() { return {type:'FeatureCollection',features:[]}; }
+function toast(msg,type='') {
+  const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;
+  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3500);
 }
 
-function toast(msg, type='') {
-  const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  el.textContent = msg;
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(() => el.remove(), 3500);
-}
-
-// Init mode
-setMode('source');
-map.getCanvas().style.cursor = 'crosshair';
+setMode('view');
 </script>
 </body>
 </html>
