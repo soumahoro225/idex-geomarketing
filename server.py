@@ -131,9 +131,8 @@ async def compute_trace(req: TraceRequest):
 
     # ── 1. Télécharger le graphe OSM ─────────────────────────────────────
     try:
-        bbox = (maxlat + buf, minlat - buf, maxlng + buf, minlng - buf)
         G = ox.graph_from_bbox(
-            bbox[0], bbox[1], bbox[2], bbox[3],
+            bbox=(maxlat + buf, minlat - buf, maxlng + buf, minlng - buf),
             network_type='drive',
             simplify=True,
         )
