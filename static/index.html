@@ -166,6 +166,14 @@ hr{border:none;border-top:1px solid var(--border);margin:9px 0}
         <div class="toggle-label"><div class="tdot" style="background:#8b9099"></div>Bâtiments</div>
         <label class="toggle"><input type="checkbox" id="tog-building" checked onchange="toggleLayer('building')"><div class="ttrack"></div><div class="tthumb"></div></label>
       </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#a78bfa"></div>Voies ferrées</div>
+        <label class="toggle"><input type="checkbox" id="tog-railway" checked onchange="toggleLayer('railway')"><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#639922"></div>Arbres / forêts</div>
+        <label class="toggle"><input type="checkbox" id="tog-trees" checked onchange="toggleLayer('trees')"><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
     </div>
 
     <hr>
@@ -209,6 +217,8 @@ hr{border:none;border-top:1px solid var(--border);margin:9px 0}
     <div class="leg-row"><div class="leg-dot" style="background:#f5a623"></div>Points de consommation</div>
     <div class="leg-row"><div class="leg-dot" style="background:#00c98a"></div>Source de chaleur</div>
     <div class="leg-row"><div class="leg-dot" style="background:#4d9fff"></div>Sous-station</div>
+    <div class="leg-row"><div class="leg-line" style="background:#a78bfa"></div>Voie ferrée</div>
+    <div class="leg-row"><div class="leg-line" style="background:#639922;height:8px;opacity:.5;border-radius:2px"></div>Arbres / forêts</div>
     <div class="leg-row"><div class="leg-line" style="background:#00c98a"></div>Tracé principal</div>
     <div class="leg-row"><div class="leg-line" style="background:#ff6b52;height:8px;opacity:.4;border-radius:2px"></div>Zone exclue</div>
   </div>
@@ -243,7 +253,7 @@ map = new maplibregl.Map({
 map.addControl(new maplibregl.NavigationControl(),'bottom-right');
 
 map.on('load',()=>{
-  ['natura','water','building','excl-areas','conso-pts','trace','trace-brut'].forEach(id=>{
+  ['natura','water','building','railway','trees','excl-areas','conso-pts','trace','trace-brut'].forEach(id=>{
     map.addSource(id,{type:'geojson',data:fc()});
   });
 
@@ -252,6 +262,12 @@ map.on('load',()=>{
   map.addLayer({id:'water-fill', type:'fill',source:'water', paint:{'fill-color':'#4d9fff','fill-opacity':.25}});
   map.addLayer({id:'water-line', type:'line',source:'water', paint:{'line-color':'#4d9fff','line-width':1.5}});
   map.addLayer({id:'building-fill',type:'fill',source:'building',paint:{'fill-color':'#8b9099','fill-opacity':.25}});
+
+  map.addLayer({id:'railway-line',type:'line',source:'railway',paint:{'line-color':'#a78bfa','line-width':2.5,'line-opacity':.8}});
+  map.addLayer({id:'railway-dash',type:'line',source:'railway',paint:{'line-color':'#fff','line-width':1,'line-opacity':.4,'line-dasharray':[4,4]}});
+
+  map.addLayer({id:'trees-fill',type:'fill',source:'trees',paint:{'fill-color':'#639922','fill-opacity':.25}});
+  map.addLayer({id:'trees-line',type:'line',source:'trees',paint:{'line-color':'#639922','line-width':1}});
 
   map.addLayer({id:'excl-fill',type:'fill',source:'excl-areas',paint:{'fill-color':'#ff4444','fill-opacity':.18}});
   map.addLayer({id:'excl-line',type:'line',source:'excl-areas',paint:{'line-color':'#ff4444','line-width':1.5,'line-dasharray':[4,2]}});
@@ -264,15 +280,82 @@ map.on('load',()=>{
   map.addLayer({id:'trace-brut-line',type:'line',source:'trace-brut',paint:{'line-color':'#555c66','line-width':1.5,'line-opacity':.5,'line-dasharray':[4,3]}});
   map.addLayer({id:'trace-line',type:'line',source:'trace',paint:{'line-color':'#00c98a','line-width':3,'line-opacity':.9}});
 
+  // Popup — points de consommation
   map.on('click','conso-circle',e=>{
+    if(mode!=='view')return;
     const p=e.features[0].properties;
-    const rows=Object.entries(p).filter(([k])=>!k.startsWith('_')).slice(0,8)
-      .map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--hint)">${k}</span><span>${v}</span></div>`).join('');
-    new maplibregl.Popup({closeButton:true,maxWidth:'220px'}).setLngLat(e.lngLat)
-      .setHTML(`<div style="font-weight:600;color:#f5a623;margin-bottom:7px">Point de consommation</div>${rows}`).addTo(map);
+    const rows=Object.entries(p).filter(([k])=>!k.startsWith('_')).slice(0,10)
+      .map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid var(--border)"><span style="color:var(--hint)">${k}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v}</span></div>`).join('');
+    popup(`<div style="font-weight:600;color:#f5a623;margin-bottom:8px">Point de consommation</div>${rows||'<span style="color:var(--hint)">Pas de propriétés</span>'}`,e.lngLat);
   });
-  map.on('mouseenter','conso-circle',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseenter','conso-circle',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
   map.on('mouseleave','conso-circle',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+
+  // Popup — zones Natura 2000
+  map.on('click','natura-fill',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    popup(`<div style="font-weight:600;color:#ff6b52;margin-bottom:8px">Zone Natura 2000</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Nom</span><span>${p.name||p.NOM||p.nom||'—'}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Type</span><span>${p.type||p.TYPE||'ZNIEFF'}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','natura-fill',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','natura-fill',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+
+  // Popup — cours d'eau
+  map.on('click','water-fill',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    popup(`<div style="font-weight:600;color:#4d9fff;margin-bottom:8px">Cours d'eau</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Nom</span><span>${p.name||'—'}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Type</span><span>${p.waterway||p.natural||'—'}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','water-fill',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','water-fill',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+
+  // Popup — bâtiments
+  map.on('click','building-fill',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    popup(`<div style="font-weight:600;color:#8b9099;margin-bottom:8px">Bâtiment</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Usage</span><span>${p.building||'—'}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Nom</span><span>${p.name||'—'}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','building-fill',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','building-fill',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+
+  // Popup — voies ferrées
+  map.on('click','railway-line',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    popup(`<div style="font-weight:600;color:#a78bfa;margin-bottom:8px">Voie ferrée</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Type</span><span>${p.railway||'—'}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Nom</span><span>${p.name||'—'}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','railway-line',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','railway-line',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+
+  // Popup — arbres / forêts
+  map.on('click','trees-fill',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    popup(`<div style="font-weight:600;color:#639922;margin-bottom:8px">Arbre / forêt</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Type</span><span>${p.natural||p.landuse||'—'}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Nom</span><span>${p.name||'—'}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','trees-fill',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','trees-fill',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+  map.on('click','trace-line',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    const len=p.length_m?`${(p.length_m/1000).toFixed(3)} km`:'—';
+    const dev=p.deviated?'Oui — dévié pour éviter une contrainte':'Non — ligne directe';
+    popup(`<div style="font-weight:600;color:#00c98a;margin-bottom:8px">Segment de réseau</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Longueur</span><span>${len}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Déviation</span><span>${dev}</span></div>`,e.lngLat);
+  });
+  map.on('mouseenter','trace-line',()=>{ if(mode==='view')map.getCanvas().style.cursor='pointer'; });
+  map.on('mouseleave','trace-line',()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
 });
 
 /* ══ Interactions carte ════════════════════════════════════════════════════ */
@@ -392,7 +475,7 @@ function setMode(m){
 }
 
 function toggleLayer(name){
-  const lm={natura:['natura-fill','natura-line'],water:['water-fill','water-line'],building:['building-fill']};
+  const lm={natura:['natura-fill','natura-line'],water:['water-fill','water-line'],building:['building-fill'],railway:['railway-line','railway-dash'],trees:['trees-fill','trees-line']};
   const on=document.getElementById('tog-'+name).checked;
   (lm[name]||[]).forEach(id=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');});
 }
@@ -437,7 +520,7 @@ async function computeTrace(){
   setProgress('Chargement des contraintes…',10,`0 / ${dests.length} segments`);
 
   const BATCH=8;
-  const allConstraintFeatures={natura:[],water:[],building:[]};
+  const allConstraintFeatures={natura:[],water:[],building:[],railway:[],trees:[]};
 
   for(let i=0;i<dests.length;i+=BATCH){
     if(traceAborted)return;
@@ -448,6 +531,8 @@ async function computeTrace(){
       allConstraintFeatures.natura.push(...r.natura);
       allConstraintFeatures.water.push(...r.water);
       allConstraintFeatures.building.push(...r.building);
+      allConstraintFeatures.railway.push(...r.railway);
+      allConstraintFeatures.trees.push(...r.trees);
     });
 
     const done=Math.min(i+BATCH,dests.length);
@@ -460,11 +545,15 @@ async function computeTrace(){
   map.getSource('natura')?.setData({type:'FeatureCollection',features:dedup(allConstraintFeatures.natura)});
   map.getSource('water')?.setData({type:'FeatureCollection',features:dedup(allConstraintFeatures.water)});
   map.getSource('building')?.setData({type:'FeatureCollection',features:dedup(allConstraintFeatures.building)});
+  map.getSource('railway')?.setData({type:'FeatureCollection',features:dedup(allConstraintFeatures.railway)});
+  map.getSource('trees')?.setData({type:'FeatureCollection',features:dedup(allConstraintFeatures.trees)});
 
   const constraints={
     natura:{type:'FeatureCollection',features:allConstraintFeatures.natura},
     water: {type:'FeatureCollection',features:allConstraintFeatures.water},
     building:{type:'FeatureCollection',features:allConstraintFeatures.building},
+    railway:{type:'FeatureCollection',features:allConstraintFeatures.railway},
+    trees:{type:'FeatureCollection',features:allConstraintFeatures.trees},
   };
 
   // ── Phase 3 : calcul tracé optimal ────────────────────────────────────
@@ -521,26 +610,43 @@ async function loadSegmentConstraints(src,dest){
   // Cache — si déjà chargé pour cette bbox
   if(segmentConstraints[key])return segmentConstraints[key];
 
-  const result={natura:[],water:[],building:[]};
+  const result={natura:[],water:[],building:[],railway:[],trees:[]};
 
   try{
-    // Overpass : eau + bâtiments en une seule requête
     const q=`[out:json][timeout:8][maxsize:500000];
       (way["waterway"~"river|stream|canal"](${minLat},${minLng},${maxLat},${maxLng});
        way["natural"="water"](${minLat},${minLng},${maxLat},${maxLng});
-       way["building"](${minLat},${minLng},${maxLat},${maxLng}););
+       way["building"](${minLat},${minLng},${maxLat},${maxLng});
+       way["railway"~"rail|subway|tram|light_rail"](${minLat},${minLng},${maxLat},${maxLng});
+       way["natural"~"wood|tree_row"](${minLat},${minLng},${maxLat},${maxLng});
+       way["landuse"~"forest|wood"](${minLat},${minLng},${maxLat},${maxLng});
+       node["natural"="tree"](${minLat},${minLng},${maxLat},${maxLng}););
       out geom qt;`;
     const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:q,signal:AbortSignal.timeout(9000)});
     if(r.ok){
       const data=await r.json();
       (data.elements||[]).forEach(el=>{
-        if(el.type==='way'&&el.geometry?.length>=3){
+        const tags=el.tags||{};
+        if(el.type==='way'&&el.geometry?.length>=2){
           const coords=el.geometry.map(g=>[g.lon,g.lat]);
-          const closed=[...coords];
-          if(closed[0][0]!==closed[closed.length-1][0])closed.push(closed[0]);
-          const feat={type:'Feature',geometry:{type:'Polygon',coordinates:[closed]},properties:el.tags||{}};
-          if(el.tags?.waterway||el.tags?.natural==='water')result.water.push(feat);
-          else if(el.tags?.building)result.building.push(feat);
+          // Ligne (railway)
+          if(tags.railway){
+            result.railway.push({type:'Feature',geometry:{type:'LineString',coordinates:coords},properties:tags});
+            return;
+          }
+          // Polygone
+          if(coords.length>=3){
+            const closed=[...coords];
+            if(closed[0][0]!==closed[closed.length-1][0])closed.push(closed[0]);
+            const feat={type:'Feature',geometry:{type:'Polygon',coordinates:[closed]},properties:tags};
+            if(tags.waterway||tags.natural==='water')result.water.push(feat);
+            else if(tags.building)result.building.push(feat);
+            else if(tags.natural==='wood'||tags.natural==='tree_row'||tags.landuse==='forest'||tags.landuse==='wood')result.trees.push(feat);
+          }
+        }
+        // Arbre isolé (node)
+        if(el.type==='node'&&tags.natural==='tree'&&el.lon&&el.lat){
+          result.trees.push({type:'Feature',geometry:{type:'Point',coordinates:[el.lon,el.lat]},properties:tags});
         }
       });
     }
@@ -579,15 +685,38 @@ function routeSegment(src,dest,constraints){
 
 function getPenalty(coord,constraints){
   let p=1;
-  if(doc(coord,constraints.natura))p+=10;
-  if(doc(coord,constraints.water)) p+=5;
-  if(doc(coord,constraints.building))p+=3;
+  if(doc(coord,constraints.natura))  p+=10;
+  if(doc(coord,constraints.water))   p+=6;
+  if(doc(coord,constraints.building))p+=4;
+  if(docLine(coord,constraints.railway))p+=8;
+  if(doc(coord,constraints.trees))   p+=3;
   for(const ex of exclusions)if(pip(coord,ex))p+=100;
   return p;
 }
 
 function doc(coord,gj){
   return(gj?.features||[]).some(f=>f.geometry?.type==='Polygon'&&pip(coord,f.geometry.coordinates[0]));
+}
+
+// Vérifie si un point est proche d'une ligne (voie ferrée) — buffer 30m
+function docLine(coord,gj){
+  const BUF=0.0003; // ~30m en degrés
+  return(gj?.features||[]).some(f=>{
+    if(f.geometry?.type!=='LineString')return false;
+    const coords=f.geometry.coordinates;
+    for(let i=1;i<coords.length;i++){
+      if(distPointSegment(coord,coords[i-1],coords[i])<BUF)return true;
+    }
+    return false;
+  });
+}
+
+function distPointSegment([px,py],[ax,ay],[bx,by]){
+  const dx=bx-ax,dy=by-ay;
+  const len2=dx*dx+dy*dy;
+  if(len2===0)return Math.sqrt((px-ax)**2+(py-ay)**2);
+  const t=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/len2));
+  return Math.sqrt((px-(ax+t*dx))**2+(py-(ay+t*dy))**2);
 }
 
 function pip([x,y],poly){
@@ -631,7 +760,7 @@ function clearAll(){
   traceAborted=true;
   manualPoints.forEach(p=>p.marker.remove());
   manualPoints=[];exclusions=[];importedPoints=null;segmentConstraints={};
-  ['natura','water','building','excl-areas','conso-pts','trace','trace-brut'].forEach(id=>map.getSource(id)?.setData(fc()));
+  ['natura','water','building','railway','trees','excl-areas','conso-pts','trace','trace-brut'].forEach(id=>map.getSource(id)?.setData(fc()));
   document.getElementById('trace-stats').style.display='none';
   document.getElementById('prog-wrap').style.display='none';
   document.getElementById('import-result').style.display='none';
@@ -645,7 +774,17 @@ function clearAll(){
 function updateButtons(){
   const hasSrc=manualPoints.some(p=>p.type==='source');
   const hasDest=manualPoints.some(p=>p.type==='sub')||importedPoints?.feature_count>0;
-  document.getElementById('btn-trace').disabled=!(hasSrc&&hasDest);
+  const ok=hasSrc&&hasDest;
+  document.getElementById('btn-trace').disabled=!ok;
+  if(ok) document.getElementById('btn-trace').title='';
+  else document.getElementById('btn-trace').title=!hasSrc?'Placez une source de chaleur':'Importez des points de consommation';
+}
+
+let activePopup=null;
+function popup(html,lngLat){
+  if(activePopup)activePopup.remove();
+  activePopup=new maplibregl.Popup({closeButton:true,maxWidth:'240px'})
+    .setLngLat(lngLat).setHTML(html).addTo(map);
 }
 
 function setProgress(phase,pct,detail){
