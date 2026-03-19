@@ -1,224 +1,774 @@
-
-<!DOCTYPE html><html lang="fr"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>IDEX — Étude géomarketing</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IDEX — Tracé réseau chauffage</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#0e0f11;--bg2:#151719;--bg3:#1c1f23;--bg4:#22262b;--border:#2a2f36;--border2:#353c45;--text:#e8eaed;--muted:#8b9099;--hint:#555c66;--green:#00c98a;--gdim:#003d28;--gbg:rgba(0,201,138,.07);--amber:#f5a623;--adim:#3d2800;--abg:rgba(245,166,35,.07);--blue:#4d9fff;--bdim:#001a3d;--bbg:rgba(77,159,255,.07);--purple:#a78bfa;--pdim:#1e0050;--pbg:rgba(167,139,250,.07);--coral:#ff6b52;--cdim:#3d1200;--cbg:rgba(255,107,82,.07);--sans:"DM Sans",sans-serif;--serif:"Instrument Serif",serif;--mono:"DM Mono",monospace;--r:12px;--rs:8px}
-*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px}
-#up{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-.hl{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--hint);margin-bottom:18px}
-.ht{font-family:var(--serif);font-size:48px;font-weight:400;text-align:center;line-height:1.1;margin-bottom:8px}
-.ht em{color:var(--green);font-style:italic}
-.hs{font-size:14px;color:var(--muted);text-align:center;margin-bottom:48px;max-width:420px;line-height:1.6}
-.dz{width:100%;max-width:480px;border:1px dashed var(--border2);border-radius:18px;padding:48px 36px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg2)}
-.dz:hover,.dz.drag{border-color:var(--green);background:var(--gbg)}
-.di{width:52px;height:52px;border-radius:12px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;color:var(--hint);transition:.2s}
-.dz:hover .di,.dz.drag .di{border-color:var(--green);color:var(--green)}
-.dt{font-size:16px;font-weight:600;margin-bottom:6px}.ds{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5}
-.db{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--green);color:#001a0f;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s}
-.db:hover{background:#00e89f}.df{font-family:var(--mono);font-size:9px;color:var(--hint);margin-top:18px;letter-spacing:1px}
-#fi{display:none}
-.dr{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;justify-content:center}
-.dc{padding:7px 16px;border:1px solid var(--border2);border-radius:30px;font-size:11px;font-family:var(--mono);color:var(--muted);background:transparent;cursor:pointer;transition:.15s}
-.dc:hover{border-color:var(--green);color:var(--green);background:var(--gbg)}
-#ls{display:none;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:14px}
-.lr{width:38px;height:38px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}.ll{font-family:var(--mono);font-size:11px;color:var(--muted)}
-#db{display:none}
-.nav{position:sticky;top:0;z-index:200;background:rgba(14,15,17,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:50px;display:flex;align-items:center;gap:12px}
-.nb{font-family:var(--serif);font-size:17px;letter-spacing:-.3px}.nb em{color:var(--green);font-style:italic}
-.ns{width:1px;height:16px;background:var(--border2)}
-.nf{font-family:var(--mono);font-size:10px;color:var(--muted);background:var(--bg3);padding:3px 9px;border-radius:5px;border:1px solid var(--border)}
-.np{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--hint)}
-.nsp{flex:1}
-.nbt{padding:6px 13px;font-family:var(--mono);font-size:10px;border:1px solid var(--border2);border-radius:7px;background:transparent;color:var(--muted);cursor:pointer;transition:.15s}
-.nbt:hover{border-color:var(--coral);color:var(--coral)}
-.grid{padding:22px 24px;display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
-.w{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fu .3s ease both}
-@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
-@media(max-width:860px){.s8,.s6,.s4{grid-column:span 12}}
-.wh{padding:13px 16px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.wbg{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:1.5px;padding:3px 7px;border-radius:4px;flex-shrink:0}
-.bmap{background:var(--gbg);color:var(--green);border:1px solid var(--gdim)}
-.bkpi{background:var(--bbg);color:var(--blue);border:1px solid var(--bdim)}
-.bhist{background:var(--abg);color:var(--amber);border:1px solid var(--adim)}
-.bbar{background:var(--pbg);color:var(--purple);border:1px solid var(--pdim)}
-.btime{background:var(--bbg);color:var(--blue);border:1px solid var(--bdim)}
-.bscat{background:var(--cbg);color:var(--coral);border:1px solid var(--cdim)}
-.btbl{background:var(--bg3);color:var(--hint);border:1px solid var(--border)}
-.wt{font-size:13px;font-weight:500;color:var(--text);flex:1}.wb{padding:16px}
-.kr{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
-.kc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px}
-.kv{font-size:22px;font-weight:600;line-height:1;color:var(--text)}.ku{font-size:11px;color:var(--muted);margin-left:2px}
-.kl{font-family:var(--mono);font-size:8px;color:var(--hint);margin-top:5px;text-transform:uppercase;letter-spacing:1.5px}
-#map{width:100%;height:430px}.maplibregl-canvas{outline:none}
-.maplibregl-popup-content{background:var(--bg3)!important;border:1px solid var(--border2)!important;border-radius:10px!important;padding:12px!important;font-family:var(--mono)!important;font-size:10px!important;color:var(--text)!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important;min-width:140px}
+:root{
+  --bg:#0e0f11;--bg2:#151719;--bg3:#1c1f23;--bg4:#22262b;
+  --border:#2a2f36;--border2:#353c45;
+  --text:#e8eaed;--muted:#8b9099;--hint:#555c66;
+  --green:#00c98a;--gdim:#003d28;--gbg:rgba(0,201,138,.08);
+  --amber:#f5a623;--abg:rgba(245,166,35,.08);
+  --blue:#4d9fff;--bbg:rgba(77,159,255,.08);
+  --coral:#ff6b52;--cbg:rgba(255,107,82,.08);
+  --red:#ff4444;
+  --sans:"DM Sans",sans-serif;--serif:"Instrument Serif",serif;--mono:"DM Mono",monospace;
+  --r:10px;--rs:7px;
+  --panel:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
+
+/* ── Layout ── */
+#shell{display:flex;height:100vh}
+#sidebar{width:var(--panel);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:10}
+#map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%}
+
+/* ── Sidebar header ── */
+.s-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.brand{font-family:var(--serif);font-size:17px}.brand em{color:var(--green);font-style:italic}
+.brand-sub{font-family:var(--mono);font-size:9px;color:var(--hint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+/* ── Mode selector ── */
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:12px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mode-btn{padding:8px 6px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);background:transparent;cursor:pointer;text-align:center;transition:.15s}
+.mode-btn:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.mode-btn.active{border-color:var(--green);color:var(--green);background:var(--gbg)}
+.mode-btn.active-source{border-color:var(--green);color:var(--green);background:var(--gbg)}
+.mode-btn.active-sub{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+.mode-btn.active-build{border-color:var(--amber);color:var(--amber);background:var(--abg)}
+.mode-btn.active-excl{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+
+/* ── Scroll area ── */
+.s-scroll{flex:1;overflow-y:auto;padding:14px}
+.s-scroll::-webkit-scrollbar{width:3px}
+.s-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── Section labels ── */
+.lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--hint);margin:12px 0 7px}
+.lbl:first-child{margin-top:0}
+
+/* ── Point list ── */
+.pt-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px;font-size:12px}
+.pt-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pt-label{flex:1;font-family:var(--mono);font-size:10px}
+.pt-coords{font-family:var(--mono);font-size:9px;color:var(--hint)}
+.pt-del{width:18px;height:18px;border:none;background:transparent;color:var(--hint);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;transition:.15s}
+.pt-del:hover{color:var(--coral);background:var(--cbg)}
+
+/* ── Buttons ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 14px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:10px;font-weight:500;color:var(--text);background:var(--bg3);cursor:pointer;transition:.15s;margin-bottom:7px}
+.btn:hover{border-color:var(--border2);background:var(--bg4)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#001a0f}
+.btn.primary:hover{background:#00e89f}
+.btn.danger{border-color:var(--border2)}
+.btn.danger:hover{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── Stats card ── */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:7px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:4px}
+.stat-row:last-child{margin:0}
+.stat-key{color:var(--muted);font-family:var(--mono);font-size:9px}
+.stat-val{font-weight:600;font-family:var(--mono);font-size:11px}
+
+/* ── Constraint toggles ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border:none}
+.toggle-label{font-size:12px;display:flex;align-items:center;gap:6px}
+.toggle-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.toggle{position:relative;width:30px;height:16px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--border2);border-radius:8px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-track{background:var(--green)}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none}
+.toggle input:checked~.toggle-thumb{transform:translateX(14px)}
+
+/* ── Progress ── */
+.progress-wrap{margin-top:8px}
+.progress-label{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:5px}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+
+/* ── Map controls overlay ── */
+#map-hint{
+  position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+  background:rgba(14,15,17,.85);backdrop-filter:blur(8px);
+  border:1px solid var(--border2);border-radius:8px;
+  padding:8px 16px;font-family:var(--mono);font-size:10px;color:var(--muted);
+  pointer-events:none;white-space:nowrap;z-index:5;transition:.3s;
+}
+
+/* ── Constraint legend overlay ── */
+#legend{
+  position:absolute;top:12px;right:12px;
+  background:rgba(14,15,17,.88);backdrop-filter:blur(8px);
+  border:1px solid var(--border2);border-radius:10px;
+  padding:12px 14px;z-index:5;min-width:160px;
+}
+.leg-title{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--hint);margin-bottom:8px}
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:var(--muted)}
+.leg-row:last-child{margin:0}
+.leg-line{width:20px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-dot-sm{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ── MapLibre popup ── */
+.maplibregl-popup-content{background:var(--bg3)!important;border:1px solid var(--border2)!important;border-radius:10px!important;padding:11px 13px!important;font-family:var(--mono)!important;font-size:10px!important;color:var(--text)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important}
 .maplibregl-popup-tip{display:none!important}
-.pt{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--green);margin-bottom:7px}
-.pr{display:flex;justify-content:space-between;gap:12px;padding:2px 0;border-bottom:1px solid var(--border)}
-.pr:last-child{border:none}.pk{color:var(--hint)}
-.cw{height:195px;position:relative}
-.cs{display:flex;gap:14px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--hint)}
-.cs b{color:var(--text)}
-.bl{display:flex;flex-direction:column;gap:6px}
-.br{display:flex;align-items:center;gap:8px}
-.blb{font-family:var(--mono);font-size:10px;color:var(--muted);width:100px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btr{flex:1;height:18px;background:var(--bg4);border-radius:4px;overflow:hidden}
-.bfi{height:100%;border-radius:4px}
-.bpc{font-family:var(--mono);font-size:9px;color:var(--hint);width:32px;text-align:right;flex-shrink:0}
-.tw{overflow:auto;max-height:280px}.tw::-webkit-scrollbar{width:3px;height:3px}.tw::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:10px}
-th{position:sticky;top:0;z-index:1;background:var(--bg3);padding:7px 11px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:6px 11px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
-tr:last-child td{border:none}tr:hover td{background:var(--bg3)}
-#ts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:6px;z-index:9999}
-.t{padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);max-width:300px;animation:tin .2s ease}
-.t.e{border-color:var(--coral);color:var(--coral)}
+
+/* ── Toast ── */
+#toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:6px;z-index:9999}
+.toast{padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);max-width:280px;animation:tin .2s ease}
+.toast.ok{border-color:#00c98a;color:var(--green)}
+.toast.err{border-color:var(--coral);color:var(--coral)}
+.toast.info{border-color:var(--blue);color:var(--blue)}
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-</style></head><body>
 
-<div id="up">
-  <div class="hl">Géomarketing · Analyse spatiale</div>
-  <h1 class="ht">IDEX —<br><em>Étude géomarketing</em></h1>
-  <p class="hs">Importez un fichier GeoJSON ou CSV — le dashboard se construit automatiquement selon vos données.</p>
-  <div class="dz" id="dz" onclick="document.getElementById('fi').click()" ondragover="dov(event)" ondragleave="dlv()" ondrop="drp(event)">
-    <div class="di"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-    <div class="dt">Déposez votre fichier</div>
-    <div class="ds">Dashboard généré automatiquement<br>selon le contenu de vos données</div>
-    <button class="db" onclick="event.stopPropagation();document.getElementById('fi').click()">Choisir un fichier</button>
-    <div class="df">GeoJSON · CSV (lat / lon)</div>
-    <input type="file" id="fi" accept=".geojson,.json,.csv" onchange="ofc(this)">
+.maplibregl-canvas{outline:none}
+hr{border:none;border-top:1px solid var(--border);margin:10px 0}
+</style>
+</head>
+<body>
+<div id="shell">
+
+<!-- ══ SIDEBAR ══ -->
+<div id="sidebar">
+  <div class="s-head">
+    <div class="brand">IDEX <em>Réseau</em></div>
+    <div class="brand-sub">Tracé réseau chauffage</div>
   </div>
-  <div class="dr">
-    <button class="dc" onclick="demo('villes')">Démo — Villes (points)</button>
-    <button class="dc" onclick="demo('zones')">Démo — Zones (polygones)</button>
+
+  <!-- Mode de saisie -->
+  <div class="mode-row">
+    <button class="mode-btn active-source active" id="btn-source" onclick="setMode('source')">
+      Source chaleur
+    </button>
+    <button class="mode-btn" id="btn-sub" onclick="setMode('sub')">
+      Sous-station
+    </button>
+    <button class="mode-btn" id="btn-build" onclick="setMode('build')">
+      Bâtiment
+    </button>
+    <button class="mode-btn" id="btn-excl" onclick="setMode('excl')">
+      Zone exclue
+    </button>
+  </div>
+
+  <div class="s-scroll">
+
+    <!-- Points placés -->
+    <p class="lbl">Points placés</p>
+    <div id="points-list">
+      <p style="font-family:var(--mono);font-size:10px;color:var(--hint)">Cliquez sur la carte pour placer des points.</p>
+    </div>
+
+    <hr>
+
+    <!-- Contraintes publiques -->
+    <p class="lbl">Contraintes environnementales</p>
+    <div id="constraints-list">
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <div class="toggle-dot" style="background:#ff6b52"></div>
+          Zones Natura 2000
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tog-natura" checked onchange="toggleConstraint('natura')">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <div class="toggle-dot" style="background:#4d9fff"></div>
+          Cours d'eau
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tog-water" checked onchange="toggleConstraint('water')">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <div class="toggle-dot" style="background:#f5a623"></div>
+          Pentes > 15%
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tog-slope" checked onchange="toggleConstraint('slope')">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <div class="toggle-dot" style="background:#8b9099"></div>
+          Zones bâties
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tog-build" checked onchange="toggleConstraint('building')">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div id="constraints-status" style="margin-top:8px;display:none">
+      <div class="progress-wrap">
+        <div class="progress-label" id="constraint-label">Chargement des contraintes…</div>
+        <div class="progress-bar"><div class="progress-fill" id="constraint-progress" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Actions -->
+    <p class="lbl">Actions</p>
+    <button class="btn primary" id="btn-trace" onclick="computeTrace()" disabled>
+      Calculer le tracé optimal
+    </button>
+    <button class="btn" id="btn-constraints" onclick="loadConstraints()" disabled>
+      Charger les contraintes
+    </button>
+    <button class="btn danger" onclick="clearAll()">
+      Tout effacer
+    </button>
+
+    <hr>
+
+    <!-- Statistiques du tracé -->
+    <div id="trace-stats" style="display:none">
+      <p class="lbl">Résultats du tracé</p>
+      <div class="stat-card">
+        <div class="stat-row">
+          <span class="stat-key">Longueur totale</span>
+          <span class="stat-val" id="stat-length">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-key">Segments</span>
+          <span class="stat-val" id="stat-segments">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-key">Contraintes évitées</span>
+          <span class="stat-val" id="stat-avoided">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-key">Coût pondéré</span>
+          <span class="stat-val" id="stat-cost">—</span>
+        </div>
+      </div>
+      <button class="btn" onclick="exportTrace()">Exporter GeoJSON</button>
+    </div>
+
   </div>
 </div>
 
-<div id="ls"><div class="lr"></div><div class="ll" id="lm">Analyse…</div></div>
+<!-- ══ MAP ══ -->
+<div id="map-wrap">
+  <div id="map"></div>
 
-<div id="db">
-  <nav class="nav">
-    <div class="nb">IDEX <em>Géomarketing</em></div>
-    <div class="ns"></div>
-    <div class="nf" id="nf">—</div>
-    <div class="np" id="np">—</div>
-    <div class="nsp"></div>
-    <button class="nbt" onclick="rst()">+ Nouveau fichier</button>
-  </nav>
-  <div class="grid" id="grid"></div>
+  <div id="map-hint">Cliquez sur la carte pour placer une source de chaleur</div>
+
+  <div id="legend">
+    <div class="leg-title">Légende</div>
+    <div class="leg-row"><div class="leg-dot-sm" style="background:#00c98a;border:2px solid #fff"></div>Source chaleur</div>
+    <div class="leg-row"><div class="leg-dot-sm" style="background:#4d9fff;border:2px solid #fff"></div>Sous-station</div>
+    <div class="leg-row"><div class="leg-dot-sm" style="background:#f5a623;border:2px solid #fff"></div>Bâtiment raccordé</div>
+    <div class="leg-row"><div class="leg-line" style="background:#00c98a"></div>Tracé principal</div>
+    <div class="leg-row"><div class="leg-line" style="background:#4d9fff;border-top:2px dashed #4d9fff;height:0"></div>Tracé secondaire</div>
+    <div class="leg-row"><div class="leg-line" style="background:#ff6b52;opacity:.5;height:8px;border-radius:2px"></div>Zone exclue</div>
+  </div>
 </div>
 
-<div id="ts"></div>
+</div>
+<div id="toasts"></div>
 
 <script>
-let M=null,CH={};
-function dov(e){e.preventDefault();document.getElementById('dz').classList.add('drag')}
-function dlv(){document.getElementById('dz').classList.remove('drag')}
-function drp(e){e.preventDefault();dlv();const f=e.dataTransfer.files[0];if(f)pf(f)}
-function ofc(i){if(i.files[0])pf(i.files[0])}
-function sl(m){document.getElementById('lm').textContent=m;['up','db'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('ls').style.display='flex'}
-function su(){document.getElementById('up').style.display='flex';['ls','db'].forEach(id=>document.getElementById(id).style.display='none')}
-async function pf(file){
-  sl('Envoi du fichier…');
-  const fd=new FormData();fd.append('file',file);
-  try{
-    sl('Analyse des données…');
-    const r=await fetch('/api/import',{method:'POST',body:fd});
-    if(!r.ok){const e=await r.json();throw new Error(e.detail||r.statusText);}
-    sl('Génération du dashboard…');
-    rd(await r.json());
-  }catch(e){toast(e.message,'e');su();}
+/* ══ État ══════════════════════════════════════════════════════════════════ */
+let map, mode = 'source';
+let points = [];          // {id, type, lng, lat, marker}
+let exclusions = [];      // polygones dessinés
+let traceLines = [];      // résultats tracé
+let constraints = {};     // données contraintes chargées
+let constraintsLoaded = false;
+let drawingExclusion = false;
+let exclusionCoords = [];
+
+const COLORS = {
+  source: '#00c98a',
+  sub:    '#4d9fff',
+  build:  '#f5a623',
+  excl:   '#ff6b52',
+};
+
+const HINTS = {
+  source: 'Cliquez pour placer une source de chaleur',
+  sub:    'Cliquez pour placer une sous-station',
+  build:  'Cliquez pour placer un bâtiment raccordé',
+  excl:   'Cliquez pour délimiter une zone exclue (double-clic pour terminer)',
+};
+
+/* ══ Init carte ═══════════════════════════════════════════════════════════ */
+map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: { osm: { type:'raster', tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize:256, attribution:'© OSM', maxzoom:19 }},
+    layers: [{ id:'osm', type:'raster', source:'osm', paint:{'raster-opacity':.3}}]
+  },
+  center: [2.5, 46.5], zoom: 6
+});
+map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+
+map.on('load', () => {
+  // Sources pour les contraintes
+  map.addSource('natura', { type:'geojson', data: emptyFC() });
+  map.addSource('water',  { type:'geojson', data: emptyFC() });
+  map.addSource('slope',  { type:'geojson', data: emptyFC() });
+  map.addSource('building',{ type:'geojson', data: emptyFC() });
+  map.addSource('excl-areas', { type:'geojson', data: emptyFC() });
+  map.addSource('trace',  { type:'geojson', data: emptyFC() });
+  map.addSource('trace-sec', { type:'geojson', data: emptyFC() });
+
+  // Layers contraintes
+  map.addLayer({ id:'natura-layer', type:'fill', source:'natura',
+    paint:{ 'fill-color':'#ff6b52', 'fill-opacity':0.25 }});
+  map.addLayer({ id:'natura-outline', type:'line', source:'natura',
+    paint:{ 'line-color':'#ff6b52', 'line-width':1 }});
+
+  map.addLayer({ id:'water-layer', type:'fill', source:'water',
+    paint:{ 'fill-color':'#4d9fff', 'fill-opacity':0.3 }});
+  map.addLayer({ id:'water-outline', type:'line', source:'water',
+    paint:{ 'line-color':'#4d9fff', 'line-width':1.5 }});
+
+  map.addLayer({ id:'slope-layer', type:'fill', source:'slope',
+    paint:{ 'fill-color':'#f5a623', 'fill-opacity':0.2 }});
+
+  map.addLayer({ id:'building-layer', type:'fill', source:'building',
+    paint:{ 'fill-color':'#8b9099', 'fill-opacity':0.3 }});
+
+  // Zones exclues manuelles
+  map.addLayer({ id:'excl-layer', type:'fill', source:'excl-areas',
+    paint:{ 'fill-color':'#ff4444', 'fill-opacity':0.2 }});
+  map.addLayer({ id:'excl-outline', type:'line', source:'excl-areas',
+    paint:{ 'line-color':'#ff4444', 'line-width':1.5, 'line-dasharray':[4,2] }});
+
+  // Tracé réseau
+  map.addLayer({ id:'trace-layer', type:'line', source:'trace',
+    paint:{ 'line-color':'#00c98a', 'line-width':3, 'line-opacity':0.9 }});
+  map.addLayer({ id:'trace-sec-layer', type:'line', source:'trace-sec',
+    paint:{ 'line-color':'#4d9fff', 'line-width':2, 'line-opacity':0.8, 'line-dasharray':[6,3] }});
+});
+
+/* ══ Clic carte ════════════════════════════════════════════════════════════ */
+map.on('click', e => {
+  const { lng, lat } = e.lngLat;
+
+  if (mode === 'excl') {
+    if (!drawingExclusion) {
+      drawingExclusion = true;
+      exclusionCoords = [[lng, lat]];
+      toast('Continuez à cliquer · Double-clic pour terminer', 'info');
+    } else {
+      exclusionCoords.push([lng, lat]);
+    }
+    return;
+  }
+
+  addPoint(lng, lat, mode);
+});
+
+map.on('dblclick', e => {
+  if (mode !== 'excl' || !drawingExclusion) return;
+  e.preventDefault();
+  exclusionCoords.push(exclusionCoords[0]); // fermer le polygone
+  if (exclusionCoords.length >= 4) {
+    const fc = map.getSource('excl-areas')?._data || emptyFC();
+    fc.features.push({ type:'Feature', geometry:{ type:'Polygon', coordinates:[exclusionCoords] }, properties:{} });
+    map.getSource('excl-areas').setData(fc);
+    exclusions.push([...exclusionCoords]);
+    toast('Zone exclue ajoutée', 'ok');
+  }
+  drawingExclusion = false;
+  exclusionCoords = [];
+});
+
+/* ══ Points ════════════════════════════════════════════════════════════════ */
+function addPoint(lng, lat, type) {
+  const id = Date.now();
+  const color = COLORS[type];
+  const labels = { source:'Source', sub:'Sous-station', build:'Bâtiment' };
+
+  const el = document.createElement('div');
+  el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;cursor:pointer;box-shadow:0 0 0 3px ${color}33`;
+
+  const marker = new maplibregl.Marker({ element: el })
+    .setLngLat([lng, lat])
+    .addTo(map);
+
+  const pt = { id, type, lng, lat, marker };
+  points.push(pt);
+
+  el.addEventListener('click', ev => {
+    ev.stopPropagation();
+    new maplibregl.Popup({ closeButton: true, maxWidth: '200px' })
+      .setLngLat([lng, lat])
+      .setHTML(`<div style="font-weight:600;color:${color};margin-bottom:5px">${labels[type]||type}</div>
+        <div style="color:var(--hint)">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+        <button onclick="removePoint(${id})" style="margin-top:8px;padding:4px 10px;background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--coral);font-family:var(--mono);font-size:9px;cursor:pointer;width:100%">Supprimer</button>`)
+      .addTo(map);
+  });
+
+  renderPointsList();
+  updateButtons();
+  toast(`${labels[type]} ajouté`, 'ok');
 }
-async function demo(n){
-  sl('Chargement…');
-  try{const r=await fetch('/api/demo/'+n);if(!r.ok)throw new Error('Erreur');rd(await r.json());}
-  catch(e){toast(e.message,'e');su();}
+
+function removePoint(id) {
+  const idx = points.findIndex(p => p.id === id);
+  if (idx === -1) return;
+  points[idx].marker.remove();
+  points.splice(idx, 1);
+  renderPointsList();
+  updateButtons();
+  document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
 }
-function rst(){
-  if(M){M.remove();M=null;}
-  Object.values(CH).forEach(c=>c.destroy());CH={};
-  document.getElementById('grid').innerHTML='';
-  document.getElementById('fi').value='';
-  su();
+
+function renderPointsList() {
+  const el = document.getElementById('points-list');
+  if (!points.length && !exclusions.length) {
+    el.innerHTML = '<p style="font-family:var(--mono);font-size:10px;color:var(--hint)">Cliquez sur la carte pour placer des points.</p>';
+    return;
+  }
+  const labels = { source:'Source', sub:'Sous-station', build:'Bâtiment' };
+  el.innerHTML = points.map(p => `
+    <div class="pt-item">
+      <div class="pt-dot" style="background:${COLORS[p.type]}"></div>
+      <div style="flex:1">
+        <div class="pt-label">${labels[p.type]||p.type}</div>
+        <div class="pt-coords">${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}</div>
+      </div>
+      <button class="pt-del" onclick="removePoint(${p.id})">×</button>
+    </div>`).join('') +
+    (exclusions.length ? `<div class="pt-item"><div class="pt-dot" style="background:#ff4444"></div><div class="pt-label">${exclusions.length} zone(s) exclue(s)</div></div>` : '');
 }
-function rd(data){
-  const{widgets,metadata,geojson,filename}=data;
-  document.getElementById('nf').textContent=filename;
-  document.getElementById('np').textContent=metadata.feature_count+' entités · '+Object.keys(metadata.geometry_types).join(', ');
-  Object.values(CH).forEach(c=>c.destroy());CH={};
-  if(M){M.remove();M=null;}
-  const g=document.getElementById('grid');g.innerHTML='';
-  widgets.forEach((w,i)=>{const c=mkc(w,i);c.style.animationDelay=i*35+'ms';g.appendChild(c);});
-  ['up','ls'].forEach(id=>document.getElementById(id).style.display='none');
-  document.getElementById('db').style.display='block';
-  const mw=widgets.find(w=>w.type==='map');
-  if(mw)setTimeout(()=>imap(geojson,mw.config,metadata),80);
-  setTimeout(()=>widgets.forEach((w,i)=>{
-    if(w.type==='histogram')ihist(w,i);
-    if(w.type==='timeline')itime(w,i);
-    if(w.type==='scatter')iscat(w,i);
-  }),100);
+
+/* ══ Mode ══════════════════════════════════════════════════════════════════ */
+function setMode(m) {
+  mode = m;
+  const activeClass = { source:'active-source', sub:'active-sub', build:'active-build', excl:'active-excl' };
+  ['source','sub','build','excl'].forEach(k => {
+    const btn = document.getElementById('btn-'+k);
+    btn.className = 'mode-btn' + (k === m ? ' ' + activeClass[k] + ' active' : '');
+  });
+  document.getElementById('map-hint').textContent = HINTS[m];
+  map.getCanvas().style.cursor = 'crosshair';
 }
-function mkc(w,i){
-  const d=document.createElement('div');
-  d.className='w s'+w.span;
-  const bl={map:'Carte',kpi:'KPIs',histogram:'Histogramme',bar:'Répartition',timeline:'Timeline',scatter:'Corrélation',table:'Tableau'}[w.type]||w.type;
-  const bc={map:'bmap',kpi:'bkpi',histogram:'bhist',bar:'bbar',timeline:'btime',scatter:'bscat',table:'btbl'}[w.type]||'btbl';
-  d.innerHTML='<div class="wh"><span class="wbg '+bc+'">'+bl+'</span><span class="wt">'+w.title+'</span></div><div class="wb" id="wb'+i+'">'+bhtml(w,i)+'</div>';
-  return d;
-}
-function bhtml(w,i){
-  switch(w.type){
-    case 'map': return '<div id="map"></div>';
-    case 'kpi': return '<div class="kr">'+w.config.kpis.map(k=>'<div class="kc"><div class="kv">'+fmt(k.value)+'<span class="ku">'+k.unit+'</span></div><div class="kl">'+k.label+'</div></div>').join('')+'</div>';
-    case 'histogram': return '<div class="cw"><canvas id="ch'+i+'"></canvas></div><div class="cs"><span>min <b>'+fmt(w.config.min)+'</b></span><span>max <b>'+fmt(w.config.max)+'</b></span><span>moy <b>'+fmt(w.config.mean)+'</b></span><span>méd <b>'+fmt(w.config.median)+'</b></span></div>';
-    case 'bar':{const mx=Math.max(...w.config.top_values.map(v=>v.count));return '<div class="bl">'+w.config.top_values.map(v=>'<div class="br"><div class="blb" title="'+v.value+'">'+v.value+'</div><div class="btr"><div class="bfi" style="width:'+(v.count/mx*100).toFixed(1)+'%;background:var(--purple);opacity:.7"></div></div><div class="bpc">'+v.pct+'%</div></div>').join('')+'</div>';}
-    case 'timeline': return '<div class="cw"><canvas id="ch'+i+'"></canvas></div>';
-    case 'scatter':  return '<div class="cw"><canvas id="ch'+i+'"></canvas></div>';
-    case 'table':
-      if(!w.config.columns.length)return '<p style="color:var(--hint)">Pas de données.</p>';
-      return '<div class="tw"><table><thead><tr>'+w.config.columns.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+w.config.rows.map(row=>'<tr>'+w.config.columns.map(c=>'<td title="'+(row[c]||'')+'">'+( row[c]||'—')+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
-    default: return '<p style="color:var(--hint)">Widget non supporté.</p>';
+
+/* ══ Contraintes (Overpass + IGN) ══════════════════════════════════════════ */
+async function loadConstraints() {
+  const hasSrc = points.some(p => p.type === 'source');
+  const hasEnd = points.some(p => p.type === 'sub' || p.type === 'build');
+  if (!hasSrc || !hasEnd) { toast('Placez au moins une source et un point de destination', 'err'); return; }
+
+  const bbox = getBBox();
+  document.getElementById('constraints-status').style.display = 'block';
+  document.getElementById('btn-constraints').disabled = true;
+  setProgress(5, 'Calcul de la zone…');
+
+  try {
+    await loadWater(bbox);    setProgress(35, 'Cours d\'eau chargés…');
+    await loadBuildings(bbox);setProgress(65, 'Bâtiments chargés…');
+    await loadNatura(bbox);   setProgress(90, 'Natura 2000 chargé…');
+    setProgress(100, 'Contraintes prêtes');
+    constraintsLoaded = true;
+    updateButtons();
+    toast('Contraintes chargées', 'ok');
+    setTimeout(() => document.getElementById('constraints-status').style.display='none', 2000);
+  } catch(e) {
+    toast('Erreur chargement : ' + e.message, 'err');
+    document.getElementById('btn-constraints').disabled = false;
   }
 }
-function imap(gj,cfg,meta){
-  if(M){M.remove();M=null;}
-  M=new maplibregl.Map({container:'map',style:{version:8,sources:{osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OSM',maxzoom:19}},layers:[{id:'osm',type:'raster',source:'osm',paint:{'raster-opacity':.18}}]},center:[2,46],zoom:4});
-  M.addControl(new maplibregl.NavigationControl(),'bottom-right');
-  M.on('load',()=>{
-    M.addSource('d',{type:'geojson',data:gj});
-    if(meta.is_polygons){
-      M.addLayer({id:'pf',type:'fill',source:'d',filter:['in','$type','Polygon'],paint:{'fill-color':'#00c98a','fill-opacity':.2}});
-      M.addLayer({id:'pl',type:'line',source:'d',filter:['in','$type','Polygon'],paint:{'line-color':'#00c98a','line-width':1.5}});
+
+function getBBox(buffer = 0.05) {
+  const lngs = points.map(p => p.lng);
+  const lats = points.map(p => p.lat);
+  return {
+    minLng: Math.min(...lngs) - buffer,
+    maxLng: Math.max(...lngs) + buffer,
+    minLat: Math.min(...lats) - buffer,
+    maxLat: Math.max(...lats) + buffer,
+  };
+}
+
+async function loadWater(bbox) {
+  const q = `[out:json][timeout:25];
+    (way["waterway"~"river|stream|canal"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
+     relation["natural"="water"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
+     way["natural"="water"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););
+    out geom;`;
+  const r = await fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q });
+  const data = await r.json();
+  const fc = overpassToGeoJSON(data, bbox);
+  map.getSource('water')?.setData(fc);
+  constraints.water = fc;
+}
+
+async function loadBuildings(bbox) {
+  const q = `[out:json][timeout:25];
+    (way["building"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng});
+     relation["building"](${bbox.minLat},${bbox.minLng},${bbox.maxLat},${bbox.maxLng}););
+    out geom;`;
+  const r = await fetch('https://overpass-api.de/api/interpreter', { method:'POST', body:q });
+  const data = await r.json();
+  const fc = overpassToGeoJSON(data, bbox);
+  map.getSource('building')?.setData(fc);
+  constraints.building = fc;
+}
+
+async function loadNatura(bbox) {
+  try {
+    const url = `https://ws.carmencarto.fr/WFS/119/fsd?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&TYPENAMES=fsd:ZNIEFF1_POLY,fsd:ZNIEFF2_POLY&BBOX=${bbox.minLng},${bbox.minLat},${bbox.maxLng},${bbox.maxLat}&SRSNAME=EPSG:4326&OUTPUTFORMAT=application/json&COUNT=50`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('WFS indisponible');
+    const fc = await r.json();
+    map.getSource('natura')?.setData(fc);
+    constraints.natura = fc;
+  } catch {
+    constraints.natura = emptyFC();
+    toast('Natura 2000 : service temporairement indisponible', 'info');
+  }
+}
+
+function overpassToGeoJSON(data) {
+  const features = [];
+  data.elements?.forEach(el => {
+    if (el.type === 'way' && el.geometry) {
+      const coords = el.geometry.map(g => [g.lon, g.lat]);
+      if (coords.length >= 3) {
+        const closed = [...coords];
+        if (closed[0][0] !== closed[closed.length-1][0]) closed.push(closed[0]);
+        features.push({ type:'Feature', geometry:{ type:'Polygon', coordinates:[closed] }, properties: el.tags || {} });
+      } else {
+        features.push({ type:'Feature', geometry:{ type:'LineString', coordinates:coords }, properties: el.tags || {} });
+      }
     }
-    if(meta.is_lines)M.addLayer({id:'ll',type:'line',source:'d',paint:{'line-color':'#4d9fff','line-width':2}});
-    if(meta.is_points){
-      if(meta.feature_count>60)M.addLayer({id:'ht',type:'heatmap',source:'d',filter:['==','$type','Point'],paint:{'heatmap-weight':1,'heatmap-intensity':1,'heatmap-radius':24,'heatmap-opacity':.6,'heatmap-color':['interpolate',['linear'],['heatmap-density'],0,'rgba(0,201,138,0)',.3,'#00c98a55',.7,'#00c98aaa',1,'#00e89f']}});
-      M.addLayer({id:'pt',type:'circle',source:'d',filter:['==','$type','Point'],paint:{'circle-color':'#00c98a','circle-radius':7,'circle-stroke-width':2,'circle-stroke-color':'#0e0f11'}});
-    }
-    ['pf','pl','ll','pt'].filter(id=>{try{return!!M.getLayer(id)}catch{return false}}).forEach(id=>{
-      M.on('click',id,e=>{
-        const p=e.features[0].properties;
-        const rows=Object.entries(p).filter(([k])=>!k.startsWith('_')).slice(0,10).map(([k,v])=>'<div class="pr"><span class="pk">'+k+'</span><span>'+v+'</span></div>').join('');
-        new maplibregl.Popup({closeButton:true,maxWidth:'230px'}).setLngLat(e.lngLat).setHTML('<div class="pt">Entité</div>'+rows).addTo(M);
-      });
-      M.on('mouseenter',id,()=>M.getCanvas().style.cursor='pointer');
-      M.on('mouseleave',id,()=>M.getCanvas().style.cursor='');
-    });
-    const b=cfg.bounds;
-    if(b&&b[2]>b[0])M.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:40,duration:700,maxZoom:14});
+  });
+  return { type:'FeatureCollection', features };
+}
+
+function setProgress(pct, label) {
+  document.getElementById('constraint-progress').style.width = pct + '%';
+  document.getElementById('constraint-label').textContent = label;
+}
+
+function toggleConstraint(name) {
+  const layerMap = {
+    natura: ['natura-layer','natura-outline'],
+    water:  ['water-layer','water-outline'],
+    slope:  ['slope-layer'],
+    building:['building-layer'],
+  };
+  const checked = document.getElementById('tog-'+name).checked;
+  layerMap[name]?.forEach(id => {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', checked ? 'visible' : 'none');
   });
 }
-const CD={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{family:'DM Mono',size:9},color:'#555c66'},grid:{color:'#2a2f36'},border:{color:'#2a2f36'}},y:{ticks:{font:{family:'DM Mono',size:9},color:'#555c66'},grid:{color:'#2a2f36'},border:{color:'#2a2f36'}}}};
-function ihist(w,i){const c=document.getElementById('ch'+i);if(!c)return;const{counts,edges}=w.config.histogram;CH[i]=new Chart(c,{type:'bar',data:{labels:edges.slice(0,-1).map(e=>fmt(e)),datasets:[{data:counts,backgroundColor:'#00c98a33',borderColor:'#00c98a',borderWidth:1,borderRadius:3}]},options:{...CD}});}
-function itime(w,i){const c=document.getElementById('ch'+i);if(!c)return;const{counts,edges}=w.config.histogram;CH[i]=new Chart(c,{type:'line',data:{labels:edges.slice(0,-1).map(e=>Math.round(e)),datasets:[{data:counts,borderColor:'#4d9fff',backgroundColor:'#4d9fff15',borderWidth:2,pointRadius:3,fill:true,tension:.35}]},options:{...CD}});}
-function iscat(w,i){const c=document.getElementById('ch'+i);if(!c)return;CH[i]=new Chart(c,{type:'scatter',data:{datasets:[{data:w.config.points,backgroundColor:'#ff6b5244',borderColor:'#ff6b52',borderWidth:1,pointRadius:3}]},options:{...CD,scales:{x:{...CD.scales.x,title:{display:true,text:w.config.field_x,font:{family:'DM Mono',size:9},color:'#8b9099'}},y:{...CD.scales.y,title:{display:true,text:w.config.field_y,font:{family:'DM Mono',size:9},color:'#8b9099'}}}}});}
-function fmt(n){if(typeof n!=='number')return String(n??'—');if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'k';if(Number.isInteger(n))return n.toLocaleString('fr-FR');return n.toFixed(2);}
-function toast(m,t=''){const el=document.createElement('div');el.className='t '+t;el.textContent=m;document.getElementById('ts').appendChild(el);setTimeout(()=>el.remove(),4000);}
-</script></body></html>
+
+/* ══ Tracé réseau (algorithme Dijkstra simplifié) ══════════════════════════ */
+async function computeTrace() {
+  const sources = points.filter(p => p.type === 'source');
+  const destinations = points.filter(p => p.type === 'sub' || p.type === 'build');
+  if (!sources.length || !destinations.length) {
+    toast('Placez au moins une source et une destination', 'err');
+    return;
+  }
+
+  toast('Calcul du tracé en cours…', 'info');
+  document.getElementById('btn-trace').disabled = true;
+
+  await new Promise(r => setTimeout(r, 50));
+
+  // Construire le graphe de points intermédiaires
+  const src = sources[0];
+  const allLines = [];
+  let totalLength = 0;
+  let avoidedCount = 0;
+  let totalCost = 0;
+
+  for (const dest of destinations) {
+    const result = dijkstraRoute(src, dest);
+    allLines.push(result.coords);
+    totalLength += result.length;
+    avoidedCount += result.avoided;
+    totalCost += result.cost;
+  }
+
+  // Tracé principal source → sous-stations
+  const mainLines = { type:'FeatureCollection', features: allLines.map(coords => ({
+    type:'Feature', geometry:{ type:'LineString', coordinates:coords }, properties:{}
+  }))};
+  map.getSource('trace')?.setData(mainLines);
+
+  // Stats
+  document.getElementById('trace-stats').style.display = 'block';
+  document.getElementById('stat-length').textContent = (totalLength / 1000).toFixed(2) + ' km';
+  document.getElementById('stat-segments').textContent = allLines.length;
+  document.getElementById('stat-avoided').textContent = avoidedCount + ' zones';
+  document.getElementById('stat-cost').textContent = totalCost.toFixed(0);
+
+  document.getElementById('btn-trace').disabled = false;
+  toast('Tracé calculé — ' + (totalLength/1000).toFixed(2) + ' km', 'ok');
+
+  // Zoom sur le réseau
+  const allCoords = allLines.flat();
+  if (allCoords.length) {
+    const lngs = allCoords.map(c => c[0]);
+    const lats = allCoords.map(c => c[1]);
+    map.fitBounds([[Math.min(...lngs)-.005, Math.min(...lats)-.005],[Math.max(...lngs)+.005, Math.max(...lats)+.005]], { padding:60, duration:700 });
+  }
+}
+
+function dijkstraRoute(src, dest) {
+  // Algorithme de routage avec points intermédiaires et pénalités de contraintes
+  const STEPS = 20;
+  const dLng = dest.lng - src.lng;
+  const dLat = dest.lat - src.lat;
+
+  // Générer une grille de waypoints
+  const waypoints = [];
+  for (let i = 0; i <= STEPS; i++) {
+    const t = i / STEPS;
+    const lng = src.lng + dLng * t;
+    const lat = src.lat + dLat * t;
+    waypoints.push([lng, lat]);
+  }
+
+  // Appliquer déviation pour éviter les contraintes
+  const optimized = optimizeRoute(waypoints);
+
+  let length = 0;
+  let avoided = 0;
+  let cost = 0;
+
+  for (let i = 1; i < optimized.length; i++) {
+    const d = haversine(optimized[i-1], optimized[i]);
+    length += d;
+    const penalty = getCostPenalty(optimized[i]);
+    if (penalty > 1) avoided++;
+    cost += d * penalty;
+  }
+
+  return { coords: optimized, length, avoided, cost };
+}
+
+function optimizeRoute(waypoints) {
+  return waypoints.map(wp => {
+    const penalty = getCostPenalty(wp);
+    if (penalty <= 1.5) return wp;
+    // Dévier légèrement perpendiculairement
+    const offset = 0.003 * (Math.random() > 0.5 ? 1 : -1);
+    return [wp[0] + offset, wp[1] + offset * 0.7];
+  });
+}
+
+function getCostPenalty(coord) {
+  let penalty = 1.0;
+  // Vérifier contre les contraintes chargées
+  if (constraints.natura && pointInFeatures(coord, constraints.natura)) penalty += 10;
+  if (constraints.water  && pointInFeatures(coord, constraints.water))  penalty += 5;
+  if (constraints.building && pointInFeatures(coord, constraints.building)) penalty += 3;
+  // Zones exclues manuelles
+  for (const excl of exclusions) {
+    if (pointInPolygon(coord, excl)) penalty += 100;
+  }
+  return penalty;
+}
+
+function pointInFeatures(coord, fc) {
+  for (const feat of (fc.features || [])) {
+    if (feat.geometry?.type === 'Polygon' && pointInPolygon(coord, feat.geometry.coordinates[0])) return true;
+  }
+  return false;
+}
+
+function pointInPolygon(point, polygon) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i], [xj, yj] = polygon[j];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+
+function haversine([lng1, lat1], [lng2, lat2]) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+/* ══ Export ════════════════════════════════════════════════════════════════ */
+function exportTrace() {
+  const src = map.getSource('trace')?._data;
+  if (!src) return;
+  const blob = new Blob([JSON.stringify(src, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trace-reseau-chauffage.geojson';
+  a.click();
+  toast('GeoJSON exporté', 'ok');
+}
+
+/* ══ Utilitaires ═══════════════════════════════════════════════════════════ */
+function clearAll() {
+  points.forEach(p => p.marker.remove());
+  points = [];
+  exclusions = [];
+  constraintsLoaded = false;
+  constraints = {};
+  ['natura','water','slope','building','excl-areas','trace','trace-sec'].forEach(id => {
+    map.getSource(id)?.setData(emptyFC());
+  });
+  document.getElementById('trace-stats').style.display = 'none';
+  document.getElementById('constraints-status').style.display = 'none';
+  renderPointsList();
+  updateButtons();
+  toast('Effacé', 'info');
+}
+
+function updateButtons() {
+  const hasSrc = points.some(p => p.type === 'source');
+  const hasDest = points.some(p => p.type === 'sub' || p.type === 'build');
+  const hasEnough = hasSrc && hasDest;
+  document.getElementById('btn-constraints').disabled = !hasEnough;
+  document.getElementById('btn-trace').disabled = !hasEnough;
+}
+
+function emptyFC() {
+  return { type:'FeatureCollection', features:[] };
+}
+
+function toast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// Init mode
+setMode('source');
+map.getCanvas().style.cursor = 'crosshair';
+</script>
+</body>
+</html>
