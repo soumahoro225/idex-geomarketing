@@ -138,7 +138,7 @@ async def compute_trace(req: TraceRequest):
     all_lngs = [src_pt[1]] + [p[1] for p in dest_pts]
     minlat, maxlat = min(all_lats), max(all_lats)
     minlng, maxlng = min(all_lngs), max(all_lngs)
-    buf = 0.003
+    buf = 0.001
 
     # Clé de cache (bbox arrondie à 2 décimales ~1km)
     cache_key = f"{round(minlat,2)},{round(minlng,2)},{round(maxlat,2)},{round(maxlng,2)}"
@@ -228,7 +228,7 @@ async def compute_trace(req: TraceRequest):
     # ── 4. Shortest Path Tree depuis la source ────────────────────────────
     try:
         lengths, paths = nx.single_source_dijkstra(
-            G, src_node, weight='weighted_length', cutoff=50000
+            G, src_node, weight='weighted_length', cutoff=20000
         )
     except Exception as e:
         raise HTTPException(500, f'Erreur Dijkstra : {e}')
