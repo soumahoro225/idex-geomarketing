@@ -1,6 +1,555 @@
-.venv/
-__pycache__/
-*.pyc
-.env
-data/
-.DS_Store
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IDEX — Tracé réseau chauffage</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+:root{
+  --bg:#0e0f11;--bg2:#151719;--bg3:#1c1f23;--bg4:#22262b;
+  --border:#2a2f36;--border2:#353c45;
+  --text:#e8eaed;--muted:#8b9099;--hint:#555c66;
+  --green:#00c98a;--gbg:rgba(0,201,138,.08);
+  --amber:#f5a623;--abg:rgba(245,166,35,.08);
+  --blue:#4d9fff;--bbg:rgba(77,159,255,.08);
+  --coral:#ff6b52;--cbg:rgba(255,107,82,.08);
+  --purple:#a78bfa;--pbg:rgba(167,139,250,.08);
+  --forest:#639922;--fbg:rgba(99,153,34,.08);
+  --sans:"DM Sans",sans-serif;--serif:"Instrument Serif",serif;--mono:"DM Mono",monospace;
+  --r:10px;--rs:7px;--panel:300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
+#shell{display:flex;height:100vh}
+#sidebar{width:var(--panel);flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:10}
+#map-wrap{flex:1;position:relative}
+#map{width:100%;height:100%}
+
+.s-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.brand{font-family:var(--serif);font-size:17px}.brand em{color:var(--green);font-style:italic}
+.brand-sub{font-family:var(--mono);font-size:9px;color:var(--hint);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mode-btn{padding:7px 4px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);background:transparent;cursor:pointer;text-align:center;transition:.15s}
+.mode-btn:hover{color:var(--text);background:var(--bg3)}
+.mode-btn.m-source{border-color:var(--green);color:var(--green);background:var(--gbg)}
+.mode-btn.m-sub{border-color:var(--blue);color:var(--blue);background:var(--bbg)}
+.mode-btn.m-excl{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+
+.s-scroll{flex:1;overflow-y:auto;padding:12px}
+.s-scroll::-webkit-scrollbar{width:3px}
+.s-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.lbl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--hint);margin:10px 0 6px}
+.lbl:first-child{margin-top:0}
+
+.import-zone{border:1px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:8px}
+.import-zone:hover,.import-zone.drag{border-color:var(--green);background:var(--gbg)}
+.import-zone.has-data{border-color:var(--green);border-style:solid;background:var(--gbg)}
+.import-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.import-sub{font-family:var(--mono);font-size:9px;color:var(--hint)}
+.import-result{font-family:var(--mono);font-size:10px;color:var(--green);margin-top:6px}
+
+.pt-item{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:4px}
+.pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pt-label{flex:1;font-family:var(--mono);font-size:9px}
+.pt-coords{font-family:var(--mono);font-size:8px;color:var(--hint)}
+.pt-del{width:16px;height:16px;border:none;background:transparent;color:var(--hint);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;border-radius:3px;flex-shrink:0;transition:.15s}
+.pt-del:hover{color:var(--coral);background:var(--cbg)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--text);background:var(--bg3);cursor:pointer;transition:.15s;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.btn:hover{background:var(--bg4)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#001a0f}
+.btn.primary:hover{background:#00e89f;border-color:#00e89f}
+.btn.danger:hover{border-color:var(--coral);color:var(--coral);background:var(--cbg)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.stat-row:last-child{margin:0}
+.stat-key{color:var(--muted);font-family:var(--mono);font-size:9px}
+.stat-val{font-weight:600;font-family:var(--mono);font-size:11px;color:var(--green)}
+
+.prog-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px}
+.prog-title{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.prog-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;border-radius:2px;transition:width .3s;background:var(--green)}
+.prog-detail{font-family:var(--mono);font-size:9px;color:var(--hint)}
+.prog-anim .prog-fill{animation:progpulse 1.5s ease-in-out infinite}
+@keyframes progpulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border:none}
+.toggle-label{font-size:11px;display:flex;align-items:center;gap:5px}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.toggle{position:relative;width:28px;height:15px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.ttrack{position:absolute;inset:0;background:var(--border2);border-radius:8px;cursor:pointer;transition:.2s}
+.toggle input:checked+.ttrack{background:var(--green)}
+.tthumb{position:absolute;top:2px;left:2px;width:11px;height:11px;background:#fff;border-radius:50%;transition:.2s;pointer-events:none}
+.toggle input:checked~.tthumb{transform:translateX(13px)}
+
+#map-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(14,15,17,.88);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:8px;padding:7px 14px;font-family:var(--mono);font-size:10px;color:var(--muted);pointer-events:none;white-space:nowrap;z-index:5}
+#legend{position:absolute;top:12px;right:12px;background:rgba(14,15,17,.88);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:10px;padding:11px 13px;z-index:5;min-width:160px}
+.leg-title{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--hint);margin-bottom:7px}
+.leg-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px;color:var(--muted)}
+.leg-row:last-child{margin:0}
+.leg-line{width:18px;height:3px;border-radius:2px;flex-shrink:0}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:1.5px solid #fff}
+
+.maplibregl-popup-content{background:var(--bg3)!important;border:1px solid var(--border2)!important;border-radius:10px!important;padding:11px 13px!important;font-family:var(--mono)!important;font-size:10px!important;color:var(--text)!important;box-shadow:0 4px 20px rgba(0,0,0,.5)!important;min-width:160px}
+.maplibregl-popup-tip{display:none!important}
+
+#toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:5px;z-index:9999}
+.toast{padding:8px 13px;border-radius:7px;font-family:var(--mono);font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);max-width:300px;animation:tin .2s ease}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--coral);color:var(--coral)}
+.toast.info{border-color:var(--blue);color:var(--blue)}
+@keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.maplibregl-canvas{outline:none}
+hr{border:none;border-top:1px solid var(--border);margin:9px 0}
+</style>
+</head>
+<body>
+<div id="shell">
+
+<div id="sidebar">
+  <div class="s-head">
+    <div class="brand">IDEX <em>Réseau</em></div>
+    <div class="brand-sub">Tracé réseau chauffage</div>
+  </div>
+
+  <div class="mode-row">
+    <button class="mode-btn m-source" id="btn-source" onclick="setMode('source')">Source chaleur</button>
+    <button class="mode-btn" id="btn-sub" onclick="setMode('sub')">Sous-station</button>
+    <button class="mode-btn" id="btn-excl" onclick="setMode('excl')">Zone exclue</button>
+    <button class="mode-btn" id="btn-view" onclick="setMode('view')">Navigation</button>
+  </div>
+
+  <div class="s-scroll">
+
+    <p class="lbl">Points de consommation</p>
+    <div class="import-zone" id="import-zone"
+         onclick="document.getElementById('fi').click()"
+         ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDropImport(event)">
+      <svg style="width:24px;height:24px;margin:0 auto 7px;display:block;color:var(--hint)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+      <div class="import-title">Importer les points</div>
+      <div class="import-sub">GeoJSON · CSV · Shapefile (.zip)</div>
+      <div class="import-result" id="import-result" style="display:none"></div>
+    </div>
+    <input type="file" id="fi" accept=".geojson,.json,.csv,.zip" style="display:none" onchange="onFileImport(this)">
+
+    <hr>
+
+    <p class="lbl">Source de chaleur</p>
+    <div id="points-list">
+      <p style="font-family:var(--mono);font-size:9px;color:var(--hint)">Activez le mode "Source chaleur" et cliquez sur la carte.</p>
+    </div>
+
+    <hr>
+
+    <p class="lbl">Contraintes à éviter</p>
+    <div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#ff6b52"></div>Natura 2000</div>
+        <label class="toggle"><input type="checkbox" id="tog-natura" checked><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#4d9fff"></div>Cours d'eau</div>
+        <label class="toggle"><input type="checkbox" id="tog-water" checked><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#8b9099"></div>Bâtiments</div>
+        <label class="toggle"><input type="checkbox" id="tog-building" checked><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#a78bfa"></div>Voies ferrées</div>
+        <label class="toggle"><input type="checkbox" id="tog-railway" checked><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label"><div class="tdot" style="background:#639922"></div>Arbres / forêts</div>
+        <label class="toggle"><input type="checkbox" id="tog-trees" checked><div class="ttrack"></div><div class="tthumb"></div></label>
+      </div>
+    </div>
+
+    <hr>
+
+    <p class="lbl">Actions</p>
+    <button class="btn primary" id="btn-trace" onclick="computeTrace()" disabled>
+      Calculer le tracé sur les rues
+    </button>
+    <button class="btn danger" onclick="clearAll()">Tout effacer</button>
+
+    <div id="prog-wrap" style="display:none;margin-top:8px">
+      <div class="prog-card" id="prog-card">
+        <div class="prog-title" id="prog-phase">Initialisation…</div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-detail" id="prog-detail">—</div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div id="trace-stats" style="display:none">
+      <p class="lbl">Résultats</p>
+      <div class="stat-card">
+        <div class="stat-row"><span class="stat-key">Longueur totale</span><span class="stat-val" id="s-length">—</span></div>
+        <div class="stat-row"><span class="stat-key">Segments</span><span class="stat-val" id="s-seg">—</span></div>
+        <div class="stat-row"><span class="stat-key">Points raccordés</span><span class="stat-val" id="s-pts">—</span></div>
+        <div class="stat-row"><span class="stat-key">Durée calcul</span><span class="stat-val" id="s-time">—</span></div>
+      </div>
+      <button class="btn" onclick="exportTrace()">Exporter GeoJSON</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="map-wrap">
+  <div id="map"></div>
+  <div id="map-hint">Activez "Source chaleur" puis cliquez sur la carte</div>
+  <div id="legend">
+    <div class="leg-title">Légende</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#f5a623"></div>Points de consommation</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#00c98a"></div>Source de chaleur</div>
+    <div class="leg-row"><div class="leg-line" style="background:#00c98a"></div>Réseau tracé</div>
+    <div class="leg-row"><div class="leg-line" style="background:#ff6b52;opacity:.5;height:8px;border-radius:2px"></div>Zones exclues</div>
+  </div>
+</div>
+
+</div>
+<div id="toasts"></div>
+
+<script>
+/* ══ État ══════════════════════════════════════════════════════════════════ */
+let map, mode = 'view';
+let manualPoints = [];
+let importedPoints = null;
+let exclusions = [], exclCoords = [], drawingExcl = false;
+let activePopup = null;
+
+const COLORS = { source:'#00c98a', sub:'#4d9fff', excl:'#ff6b52' };
+const HINTS  = {
+  source: 'Cliquez pour placer la source de chaleur',
+  sub:    'Cliquez pour placer une sous-station',
+  excl:   'Cliquez — double-clic pour terminer la zone',
+  view:   'Cliquez un objet pour voir ses propriétés',
+};
+
+/* ══ Carte ════════════════════════════════════════════════════════════════ */
+map = new maplibregl.Map({
+  container:'map',
+  style:{version:8,sources:{osm:{type:'raster',tiles:['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],tileSize:256,attribution:'© OSM',maxzoom:19}},layers:[{id:'osm',type:'raster',source:'osm',paint:{'raster-opacity':.32}}]},
+  center:[2.5,46.5],zoom:6
+});
+map.addControl(new maplibregl.NavigationControl(),'bottom-right');
+
+map.on('load',()=>{
+  ['excl-areas','conso-pts','trace'].forEach(id=>{
+    map.addSource(id,{type:'geojson',data:fc()});
+  });
+
+  map.addLayer({id:'excl-fill',type:'fill',source:'excl-areas',paint:{'fill-color':'#ff4444','fill-opacity':.18}});
+  map.addLayer({id:'excl-line',type:'line',source:'excl-areas',paint:{'line-color':'#ff4444','line-width':1.5,'line-dasharray':[4,2]}});
+
+  map.addLayer({id:'conso-circle',type:'circle',source:'conso-pts',paint:{
+    'circle-color':'#f5a623','circle-radius':5,
+    'circle-stroke-width':1.5,'circle-stroke-color':'#0e0f11','circle-opacity':.85
+  }});
+
+  map.addSource('trace-connector', {type:'geojson', data:fc()});
+
+  // Tracé réseau — ombre + ligne principale
+  map.addLayer({id:'trace-shadow',type:'line',source:'trace',
+    filter:['!=',['get','is_connector'],true],
+    paint:{'line-color':'#003d28','line-width':5,'line-opacity':.4}});
+  map.addLayer({id:'trace-line',type:'line',source:'trace',
+    filter:['!=',['get','is_connector'],true],
+    paint:{'line-color':'#00c98a','line-width':2.5,'line-opacity':.95}});
+
+  // Segments de raccordement (nœud OSM → point réel) en tirets fins
+  map.addLayer({id:'trace-conn',type:'line',source:'trace',
+    filter:['==',['get','is_connector'],true],
+    paint:{'line-color':'#00c98a','line-width':1.5,'line-opacity':.7,'line-dasharray':[3,2]}});
+
+  // Popups
+  map.on('click','conso-circle',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    const rows=Object.entries(p).filter(([k])=>!k.startsWith('_')).slice(0,10)
+      .map(([k,v])=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid var(--border)"><span style="color:var(--hint)">${k}</span><span style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v}">${v}</span></div>`).join('');
+    showPopup(`<div style="font-weight:600;color:#f5a623;margin-bottom:8px">Point de consommation</div>${rows||'<span style="color:var(--hint)">Pas de propriétés</span>'}`,e.lngLat);
+  });
+
+  map.on('click','trace-line',e=>{
+    if(mode!=='view')return;
+    const p=e.features[0].properties;
+    const len=p.length_m?`${(p.length_m/1000).toFixed(3)} km`:'—';
+    showPopup(`<div style="font-weight:600;color:#00c98a;margin-bottom:8px">Canalisation</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Longueur</span><span>${len}</span></div>
+      <div style="padding:3px 0;display:flex;justify-content:space-between"><span style="color:var(--hint)">Type</span><span>Réseau primaire</span></div>`,e.lngLat);
+  });
+
+  ['conso-circle','trace-line'].forEach(id=>{
+    map.on('mouseenter',id,()=>{if(mode==='view')map.getCanvas().style.cursor='pointer';});
+    map.on('mouseleave',id,()=>map.getCanvas().style.cursor=mode==='view'?'default':'crosshair');
+  });
+});
+
+/* ══ Interactions ══════════════════════════════════════════════════════════ */
+map.on('click',e=>{
+  if(mode==='view')return;
+  const{lng,lat}=e.lngLat;
+  if(mode==='excl'){
+    if(!drawingExcl){drawingExcl=true;exclCoords=[[lng,lat]];toast('Continuez à cliquer · Double-clic pour terminer','info');}
+    else exclCoords.push([lng,lat]);
+    return;
+  }
+  addPoint(lng,lat,mode);
+});
+
+map.on('dblclick',e=>{
+  if(mode!=='excl'||!drawingExcl)return;
+  e.preventDefault();
+  exclCoords.push(exclCoords[0]);
+  if(exclCoords.length>=4){
+    const d=map.getSource('excl-areas')?._data||fc();
+    d.features.push({type:'Feature',geometry:{type:'Polygon',coordinates:[exclCoords]},properties:{}});
+    map.getSource('excl-areas').setData(d);
+    exclusions.push([...exclCoords]);
+    toast('Zone exclue ajoutée','ok');
+  }
+  drawingExcl=false;exclCoords=[];
+});
+
+/* ══ Import ════════════════════════════════════════════════════════════════ */
+function onDragOver(e){e.preventDefault();document.getElementById('import-zone').classList.add('drag')}
+function onDragLeave(){document.getElementById('import-zone').classList.remove('drag')}
+function onDropImport(e){e.preventDefault();onDragLeave();const f=e.dataTransfer.files[0];if(f)uploadFile(f)}
+function onFileImport(i){if(i.files[0])uploadFile(i.files[0])}
+
+async function uploadFile(file){
+  const zone=document.getElementById('import-zone');
+  const res=document.getElementById('import-result');
+  zone.style.opacity='.5';res.style.display='none';
+  toast('Import en cours…','info');
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const r=await fetch('/api/import-points',{method:'POST',body:fd});
+    if(!r.ok){const e=await r.json();throw new Error(e.detail);}
+    const data=await r.json();
+    importedPoints=data;
+    map.getSource('conso-pts')?.setData(data.geojson);
+    const b=data.bounds;
+    if(b&&b[2]>b[0])map.fitBounds([[b[0],b[1]],[b[2],b[3]]],{padding:60,duration:700});
+    zone.classList.add('has-data');
+    res.style.display='block';
+    res.textContent=`✓ ${data.feature_count} points — ${data.filename}`;
+    updateButtons();
+    toast(`${data.feature_count} points importés`,'ok');
+  }catch(e){toast(e.message,'err');}
+  finally{zone.style.opacity='1';document.getElementById('fi').value='';}
+}
+
+/* ══ Points manuels ════════════════════════════════════════════════════════ */
+function addPoint(lng,lat,type){
+  // Une seule source à la fois
+  if(type==='source'){
+    manualPoints.filter(p=>p.type==='source').forEach(p=>{p.marker.remove();});
+    manualPoints=manualPoints.filter(p=>p.type!=='source');
+  }
+  const id=Date.now();
+  const color=COLORS[type];
+  const labels={source:'Source',sub:'Sous-station'};
+  const el=document.createElement('div');
+  el.style.cssText=`width:16px;height:16px;border-radius:50%;background:${color};border:2.5px solid #fff;cursor:pointer;box-shadow:0 0 0 4px ${color}40`;
+  const marker=new maplibregl.Marker({element:el}).setLngLat([lng,lat]).addTo(map);
+  const pt={id,type,lng,lat,marker};
+  manualPoints.push(pt);
+  el.addEventListener('click',ev=>{
+    ev.stopPropagation();
+    showPopup(`<div style="font-weight:600;color:${color};margin-bottom:6px">${labels[type]}</div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Lat</span><span>${lat.toFixed(5)}</span></div>
+      <div style="padding:3px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between"><span style="color:var(--hint)">Lng</span><span>${lng.toFixed(5)}</span></div>
+      <button onclick="removePoint(${id})" style="margin-top:8px;padding:3px 10px;background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--coral);font-family:var(--mono);font-size:9px;cursor:pointer;width:100%">Supprimer</button>`,
+      {lng,lat});
+  });
+  renderPoints();updateButtons();
+  toast(`${labels[type]} placé — cliquez "Calculer le tracé"`,'ok');
+}
+
+function removePoint(id){
+  const i=manualPoints.findIndex(p=>p.id===id);
+  if(i===-1)return;
+  manualPoints[i].marker.remove();manualPoints.splice(i,1);
+  renderPoints();updateButtons();
+  document.querySelectorAll('.maplibregl-popup').forEach(p=>p.remove());
+}
+
+function renderPoints(){
+  const el=document.getElementById('points-list');
+  const src=manualPoints.find(p=>p.type==='source');
+  if(!src&&!exclusions.length){
+    el.innerHTML='<p style="font-family:var(--mono);font-size:9px;color:var(--hint)">Activez le mode "Source chaleur" et cliquez sur la carte.</p>';return;
+  }
+  el.innerHTML=(src?`<div class="pt-item">
+    <div class="pt-dot" style="background:#00c98a"></div>
+    <div style="flex:1"><div class="pt-label">Source de chaleur</div>
+    <div class="pt-coords">${src.lat.toFixed(4)}, ${src.lng.toFixed(4)}</div></div>
+    <button class="pt-del" onclick="removePoint(${src.id})">×</button>
+  </div>`:'')
+  +(exclusions.length?`<div class="pt-item"><div class="pt-dot" style="background:#ff4444"></div><div class="pt-label">${exclusions.length} zone(s) exclue(s)</div></div>`:'');
+}
+
+/* ══ Mode ══════════════════════════════════════════════════════════════════ */
+function setMode(m){
+  mode=m;
+  const cls={source:'m-source',sub:'m-sub',excl:'m-excl',view:''};
+  ['source','sub','excl','view'].forEach(k=>{
+    document.getElementById('btn-'+k).className='mode-btn'+(k===m&&cls[k]?' '+cls[k]:'');
+  });
+  document.getElementById('map-hint').textContent=HINTS[m];
+  map.getCanvas().style.cursor=m==='view'?'default':'crosshair';
+}
+
+/* ══ Calcul du tracé (serveur Python) ═════════════════════════════════════ */
+async function computeTrace(){
+  const src=manualPoints.find(p=>p.type==='source');
+  if(!src){toast('Placez une source de chaleur','err');return;}
+
+  const dests=[
+    ...manualPoints.filter(p=>p.type==='sub').map(p=>({lng:p.lng,lat:p.lat})),
+    ...(importedPoints?.geojson?.features||[])
+      .filter(f=>f.geometry?.type==='Point')
+      .map(f=>({lng:f.geometry.coordinates[0],lat:f.geometry.coordinates[1]}))
+  ];
+  if(!dests.length){toast('Importez des points de consommation','err');return;}
+
+  document.getElementById('btn-trace').disabled=true;
+  document.getElementById('trace-stats').style.display='none';
+  document.getElementById('prog-wrap').style.display='block';
+  document.getElementById('prog-card').classList.add('prog-anim');
+  setProgress('Chargement du réseau viaire OSM…',20,`Zone : ${dests.length} points à raccorder`);
+
+  try{
+    const payload={
+      source:{lng:src.lng,lat:src.lat},
+      points:dests,
+      constraints:{
+        natura: document.getElementById('tog-natura').checked,
+        water:  document.getElementById('tog-water').checked,
+        building:document.getElementById('tog-building').checked,
+        railway:document.getElementById('tog-railway').checked,
+        trees:  document.getElementById('tog-trees').checked,
+      }
+    };
+
+    setProgress('Calcul de l\'arborescence optimale…',55,'MST sur réseau viaire');
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 120000);
+    const r = await fetch('/api/trace', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+
+    if(!r.ok){
+      const e=await r.json();
+      throw new Error(e.detail||'Erreur serveur');
+    }
+
+    const data=await r.json();
+    setProgress('Rendu du tracé…',90,'');
+
+    map.getSource('trace')?.setData(data.geojson);
+
+    // Zoom sur le tracé
+    const coords=data.geojson.features.flatMap(f=>f.geometry.coordinates);
+    if(coords.length){
+      const lngs=coords.map(c=>c[0]),lats=coords.map(c=>c[1]);
+      map.fitBounds([[Math.min(...lngs)-.002,Math.min(...lats)-.002],[Math.max(...lngs)+.002,Math.max(...lats)+.002]],{padding:60,duration:800,maxZoom:16});
+    }
+
+    document.getElementById('prog-card').classList.remove('prog-anim');
+    setProgress('Tracé calculé',100,'');
+    setTimeout(()=>document.getElementById('prog-wrap').style.display='none',1500);
+
+    const s=data.stats;
+    document.getElementById('trace-stats').style.display='block';
+    document.getElementById('s-length').textContent=s.total_length_km+' km';
+    document.getElementById('s-seg').textContent=s.segments;
+    document.getElementById('s-pts').textContent=s.points;
+    document.getElementById('s-time').textContent=s.elapsed_s+'s';
+
+    toast(`Tracé calculé — ${s.total_length_km} km sur ${s.points} points`,'ok');
+
+  }catch(e){
+    document.getElementById('prog-card').classList.remove('prog-anim');
+    setProgress('Erreur',0,e.message);
+    toast(e.message,'err');
+  }finally{
+    document.getElementById('btn-trace').disabled=false;
+  }
+}
+
+/* ══ Export ════════════════════════════════════════════════════════════════ */
+function exportTrace(){
+  const d=map.getSource('trace')?._data;
+  if(!d||!d.features?.length){toast('Aucun tracé à exporter','err');return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download='trace-reseau-chauffage.geojson';
+  a.click();
+  toast('GeoJSON exporté','ok');
+}
+
+/* ══ Clear ══════════════════════════════════════════════════════════════════ */
+function clearAll(){
+  manualPoints.forEach(p=>p.marker.remove());
+  manualPoints=[];exclusions=[];importedPoints=null;
+  ['excl-areas','conso-pts','trace'].forEach(id=>map.getSource(id)?.setData(fc()));
+  document.getElementById('trace-stats').style.display='none';
+  document.getElementById('prog-wrap').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('import-zone').classList.remove('has-data');
+  document.getElementById('btn-trace').disabled=true;
+  renderPoints();
+  toast('Effacé','info');
+}
+
+/* ══ Helpers ═══════════════════════════════════════════════════════════════ */
+function updateButtons(){
+  const hasSrc=manualPoints.some(p=>p.type==='source');
+  const hasDest=importedPoints?.feature_count>0||manualPoints.some(p=>p.type==='sub');
+  document.getElementById('btn-trace').disabled=!(hasSrc&&hasDest);
+}
+
+function showPopup(html,lngLat){
+  if(activePopup)activePopup.remove();
+  activePopup=new maplibregl.Popup({closeButton:true,maxWidth:'250px'})
+    .setLngLat(lngLat).setHTML(html).addTo(map);
+}
+
+function setProgress(phase,pct,detail){
+  document.getElementById('prog-phase').textContent=phase;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-detail').textContent=detail;
+}
+
+function fc(){return{type:'FeatureCollection',features:[]};}
+function toast(msg,type=''){
+  const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;
+  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),4000);
+}
+
+setMode('view');
+</script>
+</body>
+</html>
