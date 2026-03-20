@@ -450,11 +450,15 @@ async function computeTrace(){
 
     setProgress('Calcul de l\'arborescence optimale…',55,'MST sur réseau viaire');
 
-    const r=await fetch('/api/trace',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 120000);
+    const r = await fetch('/api/trace', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
 
     if(!r.ok){
       const e=await r.json();
